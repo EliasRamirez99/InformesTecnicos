@@ -16,9 +16,9 @@ var HOJA_DOCS = "documentos";
 var CABECERA  = ["id","tipo","estado","creado","actualizado","autor","meta_json","doc_json"];
 var CLAVES = { "Taller":"123", "Campo":"123", "Pañol":"123", "Almacén":"123", "Admin":"123" };
 
-// IDs fijos: el script funciona aunque sea standalone y sin propiedades cargadas.
+// El script abre la Sheet por ID y se crea/usa la carpeta de imágenes solo.
 var SHEET_ID = "1-7vofz1R5DJizMho0foM5P9X9MXKIur0BFsRoRm3hF4";   // Google Sheet base
-var DRIVE_RAIZ_ID_FIJO = "1MGcsdaqJlKWZd-XsN7i-JwP71qNfS5MS";     // carpeta de imágenes en Drive
+var DRIVE_RAIZ_NOMBRE = "InformesTecnicos - Imagenes";           // carpeta que el script crea/usa
 
 /* ---- API OPS (read-only) para el autofill; versión por-endpoint ---- */
 var OPS_HOST = "https://gestion.opssrlapp.com/api/public";
@@ -88,9 +88,7 @@ function _guardarDoc(b) {
 function _subirImagen(b) {
   if (!_claveOk(b.clave)) return { ok:false, error:"clave inválida" };
   if (!b.base64) return { ok:false, error:"falta base64" };
-  var raizId = PropertiesService.getScriptProperties().getProperty("DRIVE_RAIZ_ID") || DRIVE_RAIZ_ID_FIJO;
-  var raiz = raizId ? DriveApp.getFolderById(raizId) : DriveApp.getRootFolder();
-  var carpeta = _subcarpeta(raiz, b.doc_id || "sin_id");
+  var carpeta = _subcarpeta(_carpetaRaiz(), b.doc_id || "sin_id");
   var blob = Utilities.newBlob(Utilities.base64Decode(b.base64), b.mime || "image/jpeg", b.nombre || "imagen.jpg");
   var file = carpeta.createFile(blob);
   try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
@@ -100,6 +98,16 @@ function _subirImagen(b) {
 function _subcarpeta(raiz, nombre) {
   var it = raiz.getFoldersByName(nombre);
   return it.hasNext() ? it.next() : raiz.createFolder(nombre);
+}
+/* Carpeta raíz de imágenes: la crea (o reusa) el propio script y cachea su ID. */
+function _carpetaRaiz() {
+  var props = PropertiesService.getScriptProperties();
+  var id = props.getProperty("DRIVE_RAIZ_ID");
+  if (id) { try { return DriveApp.getFolderById(id); } catch (e) {} }
+  var it = DriveApp.getFoldersByName(DRIVE_RAIZ_NOMBRE);
+  var f = it.hasNext() ? it.next() : DriveApp.createFolder(DRIVE_RAIZ_NOMBRE);
+  props.setProperty("DRIVE_RAIZ_ID", f.getId());
+  return f;
 }
 
 /* ---- listar_docs (lectura abierta, con filtros) ---- */
@@ -151,6 +159,6 @@ function _responder(obj) {
    (Sheets + Drive). Si no tira error, ambos IDs resuelven bien. */
 function autorizar() {
   var hoja = _hoja();
-  var carpeta = DriveApp.getFolderById(DRIVE_RAIZ_ID_FIJO);
+  var carpeta = _carpetaRaiz();
   return "OK — Sheet: " + hoja.getParent().getName() + " · Carpeta: " + carpeta.getName();
 }
