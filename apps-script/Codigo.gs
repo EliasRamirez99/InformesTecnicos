@@ -1,0 +1,144 @@
+/* ============================================================================
+   Codigo.gs — Backend del prototipo (Apps Script + Google Sheets + Drive)
+   Implementa docs/CONTRATO-API.md. Lecturas abiertas; escrituras con clave.
+   ----------------------------------------------------------------------------
+   DESPLIEGUE:
+     1) Este script se ata a una Google Sheet (Extensiones > Apps Script).
+     2) Script Properties (Configuración del proyecto > Propiedades del script):
+          OPS_API_KEY   = opskey_...           (para el autofill; NUNCA en el front)
+          DRIVE_RAIZ_ID = <id carpeta Drive>   (raíz donde se crean subcarpetas por doc)
+     3) Implementar > Nueva implementación > App web > "Cualquiera".
+     4) Pegar la URL /exec en js/config.js (y en api/proxy.js si usás relay).
+   Al re-desplegar: "Gestionar implementaciones > editar > Nueva versión" mantiene la URL.
+   ========================================================================== */
+
+var HOJA_DOCS = "documentos";
+var CABECERA  = ["id","tipo","estado","creado","actualizado","autor","meta_json","doc_json"];
+var CLAVES = { "Taller":"123", "Campo":"123", "Pañol":"123", "Almacén":"123", "Admin":"123" };
+
+/* ---- API OPS (read-only) para el autofill; versión por-endpoint ---- */
+var OPS_HOST = "https://gestion.opssrlapp.com/api/public";
+var OPS_VER  = { "flota": "v3", "orden-reparacion": "v2" };
+
+function doGet(e)  { return _responder(_manejar(e.parameter || {}, null)); }
+function doPost(e) {
+  var body = {};
+  try { body = JSON.parse((e.postData && e.postData.contents) || "{}"); } catch (err) {}
+  return _responder(_manejar(body, body));
+}
+
+function _manejar(p, postBody) {
+  var accion = p.accion || "";
+  try {
+    switch (accion) {
+      case "guardar_doc":  return _guardarDoc(postBody);
+      case "subir_imagen": return _subirImagen(postBody);
+      case "listar_docs":  return _listarDocs(p);
+      case "obtener_doc":  return _obtenerDoc(p);
+      case "referencia":   return _referencia(p);
+      case "ping":         return { ok:true, pong:true, ts:new Date().toISOString() };
+      default:             return { ok:false, error:"acción desconocida: " + accion };
+    }
+  } catch (err) {
+    return { ok:false, error:String(err) };
+  }
+}
+
+/* ---- helpers de hoja ---- */
+function _hoja() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(HOJA_DOCS);
+  if (!sh) { sh = ss.insertSheet(HOJA_DOCS); sh.appendRow(CABECERA); }
+  return sh;
+}
+function _filaPorId(sh, id) {
+  var ids = sh.getRange(2, 1, Math.max(0, sh.getLastRow()-1), 1).getValues();
+  for (var i=0; i<ids.length; i++) { if (String(ids[i][0]) === String(id)) return i+2; }
+  return -1;
+}
+function _correlativo(pref) {
+  var props = PropertiesService.getScriptProperties();
+  var anio = new Date().getFullYear();
+  var k = "seq_" + pref + "_" + anio;
+  var n = parseInt(props.getProperty(k) || "0", 10) + 1;
+  props.setProperty(k, String(n));
+  return pref + "-" + anio + "-" + ("0000" + n).slice(-4);
+}
+
+/* ---- guardar_doc (upsert) ---- */
+function _guardarDoc(b) {
+  if (!b || !b.doc) return { ok:false, error:"falta doc" };
+  if (!_claveOk(b.clave)) return { ok:false, error:"clave inválida" };
+  var doc = b.doc, sh = _hoja();
+  var pref = _prefijo(doc.tipo);
+  if (!doc.id || String(doc.id).indexOf("tmp-") === 0) { doc.id = _correlativo(pref); doc.creado = doc.creado || new Date().toISOString(); }
+  doc.actualizado = new Date().toISOString();
+  var fila = [ doc.id, doc.tipo, doc.estado||"borrador", doc.creado, doc.actualizado,
+               (doc.autor && doc.autor.nombre) || "", JSON.stringify(doc.meta||{}), JSON.stringify(doc) ];
+  var r = _filaPorId(sh, doc.id);
+  if (r === -1) sh.appendRow(fila); else sh.getRange(r, 1, 1, CABECERA.length).setValues([fila]);
+  return { ok:true, id:doc.id, actualizado:doc.actualizado };
+}
+
+/* ---- subir_imagen (a Drive) ---- */
+function _subirImagen(b) {
+  if (!_claveOk(b.clave)) return { ok:false, error:"clave inválida" };
+  if (!b.base64) return { ok:false, error:"falta base64" };
+  var raizId = PropertiesService.getScriptProperties().getProperty("DRIVE_RAIZ_ID");
+  var raiz = raizId ? DriveApp.getFolderById(raizId) : DriveApp.getRootFolder();
+  var carpeta = _subcarpeta(raiz, b.doc_id || "sin_id");
+  var blob = Utilities.newBlob(Utilities.base64Decode(b.base64), b.mime || "image/jpeg", b.nombre || "imagen.jpg");
+  var file = carpeta.createFile(blob);
+  try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+  var id = file.getId();
+  return { ok:true, ref:id, url:"https://drive.google.com/uc?export=view&id=" + id };
+}
+function _subcarpeta(raiz, nombre) {
+  var it = raiz.getFoldersByName(nombre);
+  return it.hasNext() ? it.next() : raiz.createFolder(nombre);
+}
+
+/* ---- listar_docs (lectura abierta, con filtros) ---- */
+function _listarDocs(p) {
+  var sh = _hoja(), last = sh.getLastRow();
+  if (last < 2) return { ok:true, docs:[] };
+  var vals = sh.getRange(2, 1, last-1, CABECERA.length).getValues(), out = [];
+  for (var i=0; i<vals.length; i++) {
+    var v = vals[i];
+    if (p.tipo && v[1] !== p.tipo) continue;
+    var meta = {}; try { meta = JSON.parse(v[6]||"{}"); } catch (e) {}
+    if (p.dominio && meta.dominio !== p.dominio) continue;
+    out.push({ id:v[0], tipo:v[1], estado:v[2], creado:v[3], actualizado:v[4], meta:meta });
+  }
+  out.sort(function(a,b){ return String(b.creado).localeCompare(String(a.creado)); });
+  return { ok:true, docs:out };
+}
+
+/* ---- obtener_doc ---- */
+function _obtenerDoc(p) {
+  var sh = _hoja(), r = _filaPorId(sh, p.id);
+  if (r === -1) return { ok:false, error:"no existe" };
+  var doc = {}; try { doc = JSON.parse(sh.getRange(r, 8).getValue()||"{}"); } catch (e) {}
+  return { ok:true, doc:doc };
+}
+
+/* ---- referencia (autofill desde API OPS; la key va acá, server-side) ----
+   TODO: OPS aún no expone lookup por dominio directo. Cuando lo confirmen,
+   armar la query exacta. Por ahora devuelve fase-2 sin romper la carga. */
+function _referencia(p) {
+  var key = PropertiesService.getScriptProperties().getProperty("OPS_API_KEY");
+  if (!key) return { ok:false, error:"OPS_API_KEY no configurada" };
+  if (!p.dominio) return { ok:false, error:"falta dominio" };
+  // Scaffolding listo; el lookup por dominio se cablea cuando OPS lo habilite:
+  // var url = OPS_HOST + "/" + OPS_VER["flota"] + "/data/flota?dominio=" + encodeURIComponent(p.dominio);
+  // var resp = UrlFetchApp.fetch(url, { headers:{ "X-API-Key":key }, muteHttpExceptions:true });
+  // ... parsear resp y devolver { ok:true, equipo:{...} }
+  return { ok:false, error:"autofill fase 2 (falta lookup por dominio en la API OPS)" };
+}
+
+/* ---- utilidades ---- */
+function _prefijo(tipo) { return tipo === "boletin_mantenimiento" ? "BOL" : "INF"; }
+function _claveOk(c) { for (var k in CLAVES) { if (CLAVES[k] === String(c)) return true; } return false; }
+function _responder(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}

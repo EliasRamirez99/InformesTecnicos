@@ -1,0 +1,7 @@
+# Vercel / node
+node_modules/
+.vercel/
+# temporales
+*.log
+.DS_Store
+Thumbs.db

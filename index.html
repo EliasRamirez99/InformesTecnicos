@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Informes Técnicos y Boletines · OPS</title>
+  <link rel="stylesheet" href="css/estilos.css?v=20260912">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap brand">
+      <span class="logo">IT</span>
+      <h1>Informes Técnicos y Boletines</h1>
+      <span class="sep"></span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="accesos">
+      <div class="acceso">
+        <h2>📄 Informe Técnico</h2>
+        <p>Intervención exitosa: del síntoma a la validación, con análisis de causa raíz y fotos paso a paso.</p>
+        <a class="btn" href="informe.html">Nuevo informe</a>
+      </div>
+      <div class="acceso">
+        <h2>📋 Boletín de Mantenimiento</h2>
+        <p>Acontecimiento, procedimiento y medidas preventivas, con estructura fija para difundir.</p>
+        <a class="btn" href="boletin.html">Nuevo boletín</a>
+      </div>
+    </div>
+
+    <div id="aviso-demo" class="aviso" hidden>
+      <strong>Modo demo:</strong> todavía no hay backend configurado. Lo que cargues se guarda sólo en este navegador
+      (<code>localStorage</code>). Al desplegar el Apps Script y completar <code>js/config.js</code>, pasa a la Google Sheet + Drive.
+    </div>
+
+    <div class="sec-title">Documentos cargados</div>
+    <div id="lista" class="docs">
+      <div class="vacio">Cargando…</div>
+    </div>
+  </main>
+
+  <script src="js/config.js?v=20260912"></script>
+  <script src="js/common.js?v=20260912"></script>
+  <script src="js/plantillas.js?v=20260912"></script>
+  <script src="js/backend.js?v=20260912"></script>
+  <script>
+    if (!Backend.hayBackend()) { const a = document.getElementById("aviso-demo"); if (a) a.hidden = false; }
+
+    (async function () {
+      const cont = document.getElementById("lista");
+      const r = await Backend.listarDocs();
+      const docs = (r && r.docs) || [];
+      if (!docs.length) { cont.innerHTML = '<div class="vacio">Todavía no hay documentos. Creá el primero arriba.</div>'; return; }
+      cont.innerHTML = "";
+      for (const d of docs) {
+        const pl = plantillaDe(d.tipo) || {};
+        const esBol = d.tipo === "boletin_mantenimiento";
+        const titulo = (d.meta && d.meta.titulo) || pl.nombre || d.tipo;
+        const row = el("a", { class: "doc-row", href: "ver.html?id=" + encodeURIComponent(d.id) });
+        row.append(
+          el("span", { class: "badge" + (esBol ? " bol" : "") }, esBol ? "BOLETÍN" : "INFORME"),
+          el("div", {},
+            el("div", { class: "titulo" }, titulo),
+            el("div", { class: "id" }, d.id + (d.meta && d.meta.dominio ? " · " + d.meta.dominio : ""))
+          ),
+          el("div", {},
+            el("div", { class: "fecha" }, formatearFecha(d.creado)),
+            el("span", { class: "estado" + (d.estado === "finalizado" ? " final" : "") }, d.estado || "borrador")
+          )
+        );
+        cont.append(row);
+      }
+    })();
+  </script>
+</body>
+</html>
