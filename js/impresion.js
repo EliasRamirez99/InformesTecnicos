@@ -89,8 +89,9 @@ const Vista = (() => {
     (sd.bloques || []).forEach(function (b) {
       if (b.tipo === "imagen") {
         var info = (doc.imagenes || {})[b.img] || {};
-        if (!info.url) return;
-        var fig = el("figure", { class: b.ancho || "media" }, el("img", { src: info.url, alt: b.caption || "" }));
+        var src = urlImagen(info);
+        if (!src) return;
+        var fig = el("figure", { class: b.ancho || "media" }, el("img", { src: src, alt: b.caption || "" }));
         if (b.caption) fig.append(el("figcaption", {}, b.caption));
         frag.append(fig); algo = true;
       } else if (b.texto && b.texto.trim()) {

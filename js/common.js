@@ -30,6 +30,15 @@ function uuid() {
   });
 }
 
+/* URL para MOSTRAR una imagen en <img>. Las de Drive se sirven por el endpoint
+   `thumbnail` (el uc?export=view ya no embebe); las de demo usan su data-URI. */
+function urlImagen(info) {
+  if (!info) return "";
+  var ref = info.ref;
+  if (ref && String(ref).indexOf("demo_") !== 0) return "https://lh3.googleusercontent.com/d/" + ref + "=w1600";
+  return info.url || "";
+}
+
 /* Fecha -> dd-mm-aaaa (acepta ISO, d/m/a, d-m-a). */
 function formatearFecha(v) {
   if (!v) return "";

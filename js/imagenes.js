@@ -68,7 +68,7 @@ const Imagenes = (() => {
     const key = "img_" + uuid().slice(0, 8);
     doc.imagenes = doc.imagenes || {};
     doc.imagenes[key] = {
-      ref: r.ref, url: r.url, nombre: file.name || "foto.jpg",
+      ref: r.ref, url: urlImagen({ ref: r.ref, url: r.url }), nombre: file.name || "foto.jpg",
       w: c.w, h: c.h, bytes: c.bytes, subida: nowISO()
     };
     return { ok: true, key };

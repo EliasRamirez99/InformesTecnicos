@@ -217,7 +217,7 @@
     var wrap = el("div", { class: "bloque img " + ancho });
     wrap.append(ctrls(sd, host, i, permitirTexto));
     var info = doc.imagenes[b.img] || {};
-    wrap.append(el("img", { src: info.url || "", alt: b.caption || "imagen" }));
+    wrap.append(el("img", { src: urlImagen(info), alt: b.caption || "imagen" }));
     var cap = el("div", { class: "cap" });
     var inp = el("input", { type: "text", placeholder: "Epígrafe de la foto…", value: b.caption || "" });
     inp.addEventListener("input", function () { b.caption = inp.value; programarAutosave(); });
