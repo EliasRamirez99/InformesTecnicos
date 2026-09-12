@@ -95,7 +95,7 @@ async function postReintento(body, intentos = 3) {
 
 /* GET (lecturas) con alternancia directo<->relay + reintentos (arranque en frío
    de Apps Script a veces falla la 1ª). Devuelve el JSON o null si falló todo. */
-async function getJSON(params, intentos = 2) {
+async function getJSON(params, intentos = 3) {
   const rutas = rutasPreferidas();
   if (!rutas.length) return null;
   const qs = new URLSearchParams(params).toString();
@@ -103,13 +103,13 @@ async function getJSON(params, intentos = 2) {
     for (const r of rutas) {
       try {
         const sep = r.url.includes("?") ? "&" : "?";
-        const resp = await fetchConTimeout(r.url + sep + qs, {}, 15000);
+        const resp = await fetchConTimeout(r.url + sep + qs, {}, 9000);  // corto: si se cuelga, reintenta ya
         const json = await resp.json();
         recordarRuta(r.relay);
         return json;
       } catch (_) { await esperar(300); }
     }
-    await esperar(700 * (i + 1));
+    await esperar(600 * (i + 1));
   }
   return null;
 }

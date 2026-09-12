@@ -16,7 +16,7 @@ const CONFIG = {
   RELAY_URL: "",
 
   // Cache-busting de css/js. Subir en cada cambio (?v=...).
-  VERSION: "20260912d"
+  VERSION: "20260912e"
 };
 
 if (typeof module !== "undefined" && module.exports) { module.exports = { CONFIG }; }
