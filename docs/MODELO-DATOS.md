@@ -36,7 +36,7 @@ Se serializa como un único objeto JSON:
     { "id": "acciones", "tipo": "cuerpo",
       "campos_extra": { },
       "bloques": [
-        { "tipo": "texto",  "html": "Se desmontó el conjunto hidráulico..." },
+        { "tipo": "texto",  "texto": "Se desmontó el conjunto hidráulico..." },
         { "tipo": "imagen", "img": "img_ab12", "caption": "Bomba desmontada" },
         { "tipo": "texto",  "html": "Se reemplazó el retén y se rearmó." }
       ] },
@@ -75,7 +75,7 @@ Una sección `cuerpo` es una **lista ordenada de bloques**. Entre dos bloques de
 texto se intercala una imagen: eso resuelve "colocar imágenes en medio del texto".
 
 ```jsonc
-{ "tipo": "texto",  "html": "<p>...</p>" }            // párrafo (texto enriquecido acotado)
+{ "tipo": "texto",  "texto": "…" }                    // texto plano; se renderiza como párrafos (\n = salto)
 { "tipo": "imagen", "img": "img_ab12", "caption": "…", "ancho": "media" }  // ancho: full|media|chica
 { "tipo": "lista",  "items": ["...","..."] }          // viñetas (opcional)
 { "tipo": "tabla",  "filas": [["...","..."]] }        // tabla suelta (opcional)

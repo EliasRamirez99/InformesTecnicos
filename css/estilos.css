@@ -62,3 +62,70 @@ html.oscuro .badge.bol { background: #33280f; }
 .aviso { background: var(--azul-suave); border: 1px solid var(--azul); color: var(--ink); border-radius: 12px; padding: 14px 16px; margin: 20px 0; font-size: .9rem; }
 .vacio { padding: 28px; text-align: center; color: var(--ink-faint); }
 .sec-title { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-faint); font-weight: 700; margin: 28px 0 10px; }
+
+/* ====================== EDITOR ====================== */
+.editor-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 20px 0 6px; }
+.editor-head h2 { margin: 0; font-size: 1.3rem; }
+.editor-head .id { font-family: ui-monospace, monospace; font-size: .8rem; color: var(--ink-faint); }
+.editor-head .estado { }
+.editor-sub { color: var(--ink-soft); font-size: .9rem; margin: 0 0 18px; }
+
+.seccion { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 20px; margin: 0 0 16px; box-shadow: var(--sombra); }
+.seccion > h3 { margin: 0 0 14px; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
+.seccion > h3 .num { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 7px; background: var(--azul-suave); color: var(--azul); font: 700 .82rem ui-monospace, monospace; }
+.seccion > h3 .oblig { font-size: .62rem; font-weight: 700; color: var(--crit); border: 1px solid var(--crit); border-radius: 999px; padding: 1px 7px; letter-spacing: .04em; }
+
+.campos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 16px; }
+.campo { display: flex; flex-direction: column; gap: 5px; }
+.campo > label { font-size: .82rem; font-weight: 600; color: var(--ink-soft); }
+.campo > label .req { color: var(--crit); }
+.campo input, .campo select, .campo textarea {
+  width: 100%; padding: 9px 10px; border: 1px solid var(--line-strong); border-radius: 8px;
+  background: var(--surface); color: var(--ink); font: inherit;
+}
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: 2px solid var(--azul); outline-offset: 1px; border-color: var(--azul); }
+.campo.invalido input, .campo.invalido select, .campo.invalido textarea { border-color: var(--crit); }
+
+.campos-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 16px; margin: 0 0 14px; padding: 12px; background: var(--surface-2); border-radius: 10px; }
+
+/* ---- editor de bloques (texto + imagen intercalados) ---- */
+.bloques { display: flex; flex-direction: column; }
+.bloque { position: relative; border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 8px; margin: 2px 0; background: var(--surface); }
+.bloque .ctrls { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+.bloque .ctrls button { width: 26px; height: 26px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 6px; cursor: pointer; color: var(--ink-soft); font-size: .8rem; line-height: 1; }
+.bloque .ctrls button:hover { color: var(--ink); border-color: var(--line-strong); }
+.bloque textarea { width: 100%; border: 0; background: transparent; color: var(--ink); font: inherit; resize: none; min-height: 46px; padding: 4px 70px 4px 4px; overflow: hidden; }
+.bloque textarea:focus { outline: none; }
+.bloque.img { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.bloque.img img { border-radius: 8px; border: 1px solid var(--line); max-height: 340px; object-fit: contain; background: var(--surface-2); }
+.bloque.img.full img { width: 100%; } .bloque.img.media img { max-width: 60%; } .bloque.img.chica img { max-width: 34%; }
+.bloque.img .cap { width: 100%; display: flex; gap: 8px; align-items: center; }
+.bloque.img .cap input { flex: 1; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font: italic .88rem inherit; }
+.bloque.img .cap select { padding: 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); }
+
+.add-bar { display: flex; gap: 6px; justify-content: center; padding: 3px 0; opacity: .5; transition: opacity .15s; }
+.bloques:hover .add-bar, .add-bar:hover { opacity: 1; }
+.add-bar button { font-size: .78rem; padding: 4px 10px; border: 1px dashed var(--line-strong); background: transparent; color: var(--ink-soft); border-radius: 7px; cursor: pointer; }
+.add-bar button:hover { color: var(--azul); border-color: var(--azul); }
+.bloques-vacio .add-bar { opacity: 1; }
+
+/* ---- editor de tabla ---- */
+.tabla-editor { width: 100%; border-collapse: collapse; }
+.tabla-editor th { text-align: left; font-size: .78rem; color: var(--ink-faint); padding: 4px 8px; font-weight: 600; }
+.tabla-editor td { padding: 3px 4px; }
+.tabla-editor td input { width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; }
+.tabla-editor td.x { width: 34px; text-align: center; }
+.tabla-editor td.x button { border: 0; background: transparent; color: var(--ink-faint); cursor: pointer; font-size: 1rem; }
+.btn-fila { margin-top: 8px; font-size: .82rem; padding: 6px 12px; border: 1px dashed var(--line-strong); background: transparent; color: var(--azul); border-radius: 8px; cursor: pointer; }
+
+/* ---- barra de acciones ---- */
+.barra-acciones { position: sticky; bottom: 0; margin: 18px -18px 0; padding: 12px 18px; background: var(--surface); border-top: 1px solid var(--line); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; z-index: 5; }
+.barra-acciones .sep { flex: 1; }
+.msg { padding: 8px 12px; border-radius: 8px; font-size: .88rem; }
+.msg.ok { background: var(--green-soft, #e7f1e2); color: var(--ok); }
+.msg.err { background: #fdeceb; color: var(--crit); }
+html.oscuro .msg.ok { background: #1d2f1c; } html.oscuro .msg.err { background: #3a1f1e; }
+.faltantes { margin: 8px 0 0; padding: 10px 12px; border: 1px solid var(--crit); border-radius: 8px; background: #fdeceb; color: var(--crit); font-size: .85rem; }
+html.oscuro .faltantes { background: #3a1f1e; }
+.faltantes ul { margin: 6px 0 0; padding-left: 20px; }
+.procesando { font-size: .82rem; color: var(--azul); padding: 4px 0; }
