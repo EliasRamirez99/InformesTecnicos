@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ver documento · OPS</title>
+  <link rel="stylesheet" href="css/estilos.css?v=20260912">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap brand">
+      <span class="logo">IT</span>
+      <h1>Documento</h1>
+      <span class="sep"></span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="doc-acciones">
+      <button id="btn-print" class="btn" type="button">🖨 Imprimir / PDF</button>
+      <a id="btn-edit" class="btn ghost" href="#">✎ Editar</a>
+      <span class="sep"></span>
+      <a class="btn ghost" href="index.html">← Volver</a>
+    </div>
+    <div id="documento" class="documento"><p>Cargando…</p></div>
+  </main>
+
+  <script src="js/config.js?v=20260912"></script>
+  <script src="js/common.js?v=20260912"></script>
+  <script src="js/plantillas.js?v=20260912"></script>
+  <script src="js/backend.js?v=20260912"></script>
+  <script src="js/impresion.js?v=20260912"></script>
+  <script>
+    (async function () {
+      var host = document.getElementById("documento");
+      var id = new URLSearchParams(location.search).get("id");
+      if (!id) { host.innerHTML = "<p>Falta el id del documento.</p>"; return; }
+      var r = await Backend.obtenerDoc(id);
+      if (!r || !r.ok) { host.innerHTML = "<p>No se encontró el documento (" + (r && r.error || "") + ").</p>"; return; }
+      var doc = r.doc;
+      Vista.render(doc, host);
+      var edit = doc.tipo === "boletin_mantenimiento" ? "boletin.html" : "informe.html";
+      document.getElementById("btn-edit").href = edit + "?id=" + encodeURIComponent(doc.id);
+      document.getElementById("btn-print").addEventListener("click", Vista.imprimir);
+      document.title = ((doc.meta && doc.meta.titulo) || doc.id) + " · OPS";
+    })();
+  </script>
+</body>
+</html>
