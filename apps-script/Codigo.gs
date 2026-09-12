@@ -164,3 +164,26 @@ function autorizar() {
   var carpeta = _carpetaRaiz();
   return "OK — Sheet: " + hoja.getParent().getName() + " · Carpeta: " + carpeta.getName();
 }
+
+/* Limpieza única: borra los documentos de prueba (filas + fotos) y resetea los
+   contadores para arrancar en 0001. Correr con ▶ Ejecutar. Editá la lista `ids`
+   si querés borrar otros. */
+function limpiarPruebas() {
+  var res = [];
+  var ids = ["INF-2026-0003", "INF-2026-0004"];
+  var sh = _hoja();
+  ids.forEach(function (id) {
+    var r = _filaPorId(sh, id);
+    if (r !== -1) { sh.deleteRow(r); res.push("fila borrada: " + id); }
+  });
+  var props = PropertiesService.getScriptProperties();
+  props.deleteProperty("seq_INF_2026");
+  props.deleteProperty("seq_BOL_2026");
+  res.push("contadores INF/BOL 2026 reseteados -> proximo = 0001");
+  var raiz = _carpetaRaiz();
+  ids.forEach(function (id) {
+    var it = raiz.getFoldersByName(id);
+    while (it.hasNext()) { it.next().setTrashed(true); res.push("fotos borradas: " + id); }
+  });
+  return res.join(" | ");
+}
