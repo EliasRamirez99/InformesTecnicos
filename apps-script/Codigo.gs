@@ -56,7 +56,9 @@ function _hoja() {
   return sh;
 }
 function _filaPorId(sh, id) {
-  var ids = sh.getRange(2, 1, Math.max(0, sh.getLastRow()-1), 1).getValues();
+  var last = sh.getLastRow();
+  if (last < 2) return -1;                       // hoja vacía (sólo encabezado)
+  var ids = sh.getRange(2, 1, last-1, 1).getValues();
   for (var i=0; i<ids.length; i++) { if (String(ids[i][0]) === String(id)) return i+2; }
   return -1;
 }
