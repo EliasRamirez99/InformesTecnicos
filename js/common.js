@@ -93,22 +93,30 @@ async function postReintento(body, intentos = 3) {
   return null;
 }
 
-/* GET (lecturas) con la misma alternancia. */
-async function getJSON(params) {
+/* GET (lecturas) con alternancia directo<->relay + reintentos (arranque en frío
+   de Apps Script a veces falla la 1ª). Devuelve el JSON o null si falló todo. */
+async function getJSON(params, intentos = 2) {
   const rutas = rutasPreferidas();
   if (!rutas.length) return null;
   const qs = new URLSearchParams(params).toString();
-  for (const r of rutas) {
-    try {
-      const sep = r.url.includes("?") ? "&" : "?";
-      const resp = await fetchConTimeout(r.url + sep + qs, {}, 15000);
-      const json = await resp.json();
-      recordarRuta(r.relay);
-      return json;
-    } catch (_) { await esperar(300); }
+  for (let i = 0; i < intentos; i++) {
+    for (const r of rutas) {
+      try {
+        const sep = r.url.includes("?") ? "&" : "?";
+        const resp = await fetchConTimeout(r.url + sep + qs, {}, 15000);
+        const json = await resp.json();
+        recordarRuta(r.relay);
+        return json;
+      } catch (_) { await esperar(300); }
+    }
+    await esperar(700 * (i + 1));
   }
   return null;
 }
+
+/* Caché liviana en localStorage (para carga instantánea + resiliencia). */
+function cacheGet(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (_) { return null; } }
+function cacheSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
 
 const esperar = ms => new Promise(res => setTimeout(res, ms));
 

@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Informes Técnicos y Boletines · OPS</title>
-  <link rel="stylesheet" href="css/estilos.css?v=20260912c">
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="preconnect" href="https://script.googleusercontent.com">
+  <link rel="preconnect" href="https://lh3.googleusercontent.com">
+  <link rel="stylesheet" href="css/estilos.css?v=20260912d">
 </head>
 <body>
   <header class="top">
@@ -40,37 +43,51 @@
     </div>
   </main>
 
-  <script src="js/config.js?v=20260912c"></script>
-  <script src="js/common.js?v=20260912c"></script>
-  <script src="js/plantillas.js?v=20260912c"></script>
-  <script src="js/backend.js?v=20260912c"></script>
+  <script src="js/config.js?v=20260912d"></script>
+  <script src="js/common.js?v=20260912d"></script>
+  <script src="js/plantillas.js?v=20260912d"></script>
+  <script src="js/backend.js?v=20260912d"></script>
   <script>
     if (!Backend.hayBackend()) { const a = document.getElementById("aviso-demo"); if (a) a.hidden = false; }
 
-    (async function () {
+    (function () {
       const cont = document.getElementById("lista");
-      const r = await Backend.listarDocs();
-      const docs = (r && r.docs) || [];
-      if (!docs.length) { cont.innerHTML = '<div class="vacio">Todavía no hay documentos. Creá el primero arriba.</div>'; return; }
-      cont.innerHTML = "";
-      for (const d of docs) {
-        const pl = plantillaDe(d.tipo) || {};
-        const esBol = d.tipo === "boletin_mantenimiento";
-        const titulo = (d.meta && d.meta.titulo) || pl.nombre || d.tipo;
-        const row = el("a", { class: "doc-row", href: "ver.html?id=" + encodeURIComponent(d.id) });
-        row.append(
-          el("span", { class: "badge" + (esBol ? " bol" : "") }, esBol ? "BOLETÍN" : "INFORME"),
-          el("div", {},
-            el("div", { class: "titulo" }, titulo),
-            el("div", { class: "id" }, d.id + (d.meta && d.meta.dominio ? " · " + d.meta.dominio : ""))
-          ),
-          el("div", {},
-            el("div", { class: "fecha" }, formatearFecha(d.creado)),
-            el("span", { class: "estado" + (d.estado === "finalizado" ? " final" : "") }, d.estado || "borrador")
-          )
-        );
-        cont.append(row);
+      const CACHE = "it_docs_cache";
+
+      function pintar(docs) {
+        if (!docs || !docs.length) { cont.innerHTML = '<div class="vacio">Todavía no hay documentos. Creá el primero arriba.</div>'; return; }
+        cont.innerHTML = "";
+        for (const d of docs) {
+          const pl = plantillaDe(d.tipo) || {};
+          const esBol = d.tipo === "boletin_mantenimiento";
+          const titulo = (d.meta && d.meta.titulo) || pl.nombre || d.tipo;
+          const row = el("a", { class: "doc-row", href: "ver.html?id=" + encodeURIComponent(d.id) });
+          row.append(
+            el("span", { class: "badge" + (esBol ? " bol" : "") }, esBol ? "BOLETÍN" : "INFORME"),
+            el("div", {},
+              el("div", { class: "titulo" }, titulo),
+              el("div", { class: "id" }, d.id + (d.meta && d.meta.dominio ? " · " + d.meta.dominio : ""))
+            ),
+            el("div", {},
+              el("div", { class: "fecha" }, formatearFecha(d.creado)),
+              el("span", { class: "estado" + (d.estado === "finalizado" ? " final" : "") }, d.estado || "borrador")
+            )
+          );
+          cont.append(row);
+        }
       }
+
+      // 1) instantáneo desde caché (no esperamos la red para ver la lista)
+      const cache = cacheGet(CACHE);
+      if (cache && cache.length) pintar(cache);
+
+      // 2) refresco en 2º plano; si la red corta, conserva lo cacheado
+      Backend.listarDocs().then(function (r) {
+        if (r && r.ok && Array.isArray(r.docs)) { cacheSet(CACHE, r.docs); pintar(r.docs); }
+        else if (!(cache && cache.length)) {
+          cont.innerHTML = '<div class="vacio">No se pudo cargar la lista (la red cortó). <a href="index.html">Reintentar</a></div>';
+        }
+      });
     })();
   </script>
 </body>

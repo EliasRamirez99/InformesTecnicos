@@ -63,7 +63,7 @@ const Backend = (() => {
       return { ok: true, docs: f.map(resumen) };
     }
     const r = await getJSON({ accion: "listar_docs", ...filtros });
-    return r || { ok: false, error: "Sin conexión.", docs: [] };
+    return r || { ok: false, error: "Sin conexión.", docs: null };
   }
 
   async function obtenerDoc(id) {
@@ -72,6 +72,9 @@ const Backend = (() => {
       return docs[id] ? { ok: true, doc: docs[id] } : { ok: false, error: "No existe." };
     }
     const r = await getJSON({ accion: "obtener_doc", id });
+    if (r && r.ok && r.doc) { cacheSet("it_doc_" + id, r.doc); return r; }
+    const c = cacheGet("it_doc_" + id);           // si la red cortó, servimos la copia cacheada
+    if (c) return { ok: true, doc: c, deCache: true };
     return r || { ok: false, error: "Sin conexión." };
   }
 
