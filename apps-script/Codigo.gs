@@ -16,6 +16,10 @@ var HOJA_DOCS = "documentos";
 var CABECERA  = ["id","tipo","estado","creado","actualizado","autor","meta_json","doc_json"];
 var CLAVES = { "Taller":"123", "Campo":"123", "Pañol":"123", "Almacén":"123", "Admin":"123" };
 
+// IDs fijos: el script funciona aunque sea standalone y sin propiedades cargadas.
+var SHEET_ID = "1-7vofz1R5DJizMho0foM5P9X9MXKIur0BFsRoRm3hF4";   // Google Sheet base
+var DRIVE_RAIZ_ID_FIJO = "1MGcsdaqJlKWZd-XsN7i-JwP71qNfS5MS";     // carpeta de imágenes en Drive
+
 /* ---- API OPS (read-only) para el autofill; versión por-endpoint ---- */
 var OPS_HOST = "https://gestion.opssrlapp.com/api/public";
 var OPS_VER  = { "flota": "v3", "orden-reparacion": "v2" };
@@ -46,7 +50,7 @@ function _manejar(p, postBody) {
 
 /* ---- helpers de hoja ---- */
 function _hoja() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(HOJA_DOCS);
   if (!sh) { sh = ss.insertSheet(HOJA_DOCS); sh.appendRow(CABECERA); }
   return sh;
@@ -84,7 +88,7 @@ function _guardarDoc(b) {
 function _subirImagen(b) {
   if (!_claveOk(b.clave)) return { ok:false, error:"clave inválida" };
   if (!b.base64) return { ok:false, error:"falta base64" };
-  var raizId = PropertiesService.getScriptProperties().getProperty("DRIVE_RAIZ_ID");
+  var raizId = PropertiesService.getScriptProperties().getProperty("DRIVE_RAIZ_ID") || DRIVE_RAIZ_ID_FIJO;
   var raiz = raizId ? DriveApp.getFolderById(raizId) : DriveApp.getRootFolder();
   var carpeta = _subcarpeta(raiz, b.doc_id || "sin_id");
   var blob = Utilities.newBlob(Utilities.base64Decode(b.base64), b.mime || "image/jpeg", b.nombre || "imagen.jpg");
@@ -141,4 +145,12 @@ function _prefijo(tipo) { return tipo === "boletin_mantenimiento" ? "BOL" : "INF
 function _claveOk(c) { for (var k in CLAVES) { if (CLAVES[k] === String(c)) return true; } return false; }
 function _responder(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* Ejecutá esta función UNA vez con el botón ▶ Ejecutar para autorizar los permisos
+   (Sheets + Drive). Si no tira error, ambos IDs resuelven bien. */
+function autorizar() {
+  var hoja = _hoja();
+  var carpeta = DriveApp.getFolderById(DRIVE_RAIZ_ID_FIJO);
+  return "OK — Sheet: " + hoja.getParent().getName() + " · Carpeta: " + carpeta.getName();
 }
