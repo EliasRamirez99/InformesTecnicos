@@ -32,7 +32,7 @@ const PLANTILLAS = {
     tipo: "informe_intervencion",
     nombre: "Informe Técnico de Intervención Exitosa",
     prefijo: "INF",          // id => INF-2026-0001
-    version: 2,
+    version: 3,
     secciones: [
 
       { id: "identificacion", titulo: "Identificación", tipo: "campos", obligatoria: true,
@@ -53,6 +53,7 @@ const PLANTILLAS = {
           { id: "tipo_equipo", etiqueta: "Tipo de equipo",             tipo: "texto" },
           { id: "marca",       etiqueta: "Marca",                      tipo: "texto" },
           { id: "modelo",      etiqueta: "Modelo",                     tipo: "texto" },
+          { id: "chasis",      etiqueta: "Chasis / Bin",               tipo: "texto" },
           { id: "medidor",     etiqueta: "Km / Horas",                 tipo: "texto" },
           { id: "obra",        etiqueta: "Obra",                       tipo: "texto", listado: "obras" },
           { id: "base",        etiqueta: "Base / Destino",             tipo: "texto" },
