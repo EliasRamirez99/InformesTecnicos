@@ -39,7 +39,7 @@ const PLANTILLAS = {
         campos: [
           { id: "titulo",            etiqueta: "Título del informe",        tipo: "texto",  requerido: true },
           { id: "nro_or",            etiqueta: "N° de Orden de Reparación",  tipo: "texto" },
-          { id: "fecha_intervencion",etiqueta: "Fecha de la intervención",  tipo: "fecha",  requerido: true },
+          { id: "fecha_intervencion",etiqueta: "Fecha de la intervención",  tipo: "rango_fecha", requerido: true },
           { id: "autor",             etiqueta: "Supervisor de taller",       tipo: "texto",  requerido: true, listado: "supervisores" },
           { id: "box",               etiqueta: "Box",                        tipo: "texto" },
           { id: "tipo_intervencion", etiqueta: "Tipo de mantenimiento",      tipo: "opcion", opciones: ["Correctivo","Preventivo","Predictivo","Mejora"] },

@@ -15,7 +15,7 @@ const Vista = (() => {
     return esc(texto).split(/\n{2,}/).map(function (p) { return el("p", { html: p.replace(/\n/g, "<br>") }); });
   }
   function fechaCab(meta) {
-    var f = meta.fecha_intervencion || meta.fecha_emision;
+    var f = meta.fecha_intervencion_desde || meta.fecha_emision;
     return f ? " · " + formatearFecha(f) : "";
   }
 
@@ -48,11 +48,24 @@ const Vista = (() => {
 
   function pintarCampos(s, sd) {
     var campos = (sd.campos) || {};
-    var pares = (s.campos || []).filter(function (c) { return campos[c.id] != null && campos[c.id] !== ""; });
+    var pares = (s.campos || []).filter(function (c) {
+      if (c.tipo === "rango_fecha") return campos[c.id + "_desde"];
+      return campos[c.id] != null && campos[c.id] !== "";
+    });
     if (!pares.length) return null;
     var dl = el("dl", { class: "doc-dl" });
     pares.forEach(function (c) {
-      dl.append(el("dt", {}, c.etiqueta), el("dd", {}, c.tipo === "fecha" ? formatearFecha(campos[c.id]) : campos[c.id]));
+      var valor;
+      if (c.tipo === "rango_fecha") {
+        var d = formatearFecha(campos[c.id + "_desde"]);
+        var h = campos[c.id + "_hasta"] ? formatearFecha(campos[c.id + "_hasta"]) : "";
+        valor = (h && h !== d) ? (d + " a " + h) : d;
+      } else if (c.tipo === "fecha") {
+        valor = formatearFecha(campos[c.id]);
+      } else {
+        valor = campos[c.id];
+      }
+      dl.append(el("dt", {}, c.etiqueta), el("dd", {}, valor));
     });
     return dl;
   }

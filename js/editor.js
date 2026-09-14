@@ -103,37 +103,55 @@
   function renderCampos(s, sd, host) {
     var grid = el("div", { class: "campos-grid" });
     s.campos.forEach(function (c) {
-      grid.append(campoEl(c, sd.campos[c.id], function (v) {
-        sd.campos[c.id] = v; programarAutosave();
+      grid.append(campoEl(c, sd.campos, function (v) {
+        programarAutosave();
         if (s.autofill && c.id === s.autofill && v) autofill(s, sd, v);
       }));
     });
     host.append(grid);
   }
 
-  function campoEl(c, valor, onChange) {
+  /* c = definición del campo; valores = objeto donde se guardan (sd.campos o
+     sd.campos_extra); alCambiar(valorPrincipal) dispara autosave/autofill. */
+  function campoEl(c, valores, alCambiar) {
     var wrap = el("div", { class: "campo", "data-campo": c.id });
     var lab = el("label", {}, c.etiqueta);
     if (c.requerido) lab.append(el("span", { class: "req" }, " *"));
     wrap.append(lab);
+
+    if (c.tipo === "rango_fecha") {          // Desde–Hasta (Hasta vacío = mismo día)
+      var cont = el("div", { class: "rango-fecha" });
+      var celda = function (sub, etq) {
+        var col = el("div", { class: "rango-celda" }, el("span", { class: "rango-lbl" }, etq));
+        var inp = el("input", { type: "date" });
+        inp.value = valores[c.id + sub] || "";
+        inp.addEventListener("input", function () { valores[c.id + sub] = inp.value; alCambiar(valores[c.id + "_desde"]); });
+        col.append(inp);
+        return col;
+      };
+      cont.append(celda("_desde", "Desde"), celda("_hasta", "Hasta (si duró varios días)"));
+      wrap.append(cont);
+      return wrap;
+    }
+
     var input;
     if (c.tipo === "opcion") {
       input = el("select", {});
       input.append(el("option", { value: "" }, "— elegir —"));
       (c.opciones || []).forEach(function (o) {
         var opt = el("option", { value: o }, o);
-        if (valor === o) opt.selected = true;
+        if (valores[c.id] === o) opt.selected = true;
         input.append(opt);
       });
     } else if (c.tipo === "textarea") {
-      input = el("textarea", { rows: "3" }); input.value = valor || "";
+      input = el("textarea", { rows: "3" }); input.value = valores[c.id] || "";
     } else {
       var t = c.tipo === "fecha" ? "date" : c.tipo === "numero" ? "number" : "text";
-      input = el("input", { type: t }); input.value = valor || "";
+      input = el("input", { type: t }); input.value = valores[c.id] || "";
       if (c.listado) input.setAttribute("list", datalist(c.listado));
     }
-    input.addEventListener("input", function () { onChange(input.value); });
-    input.addEventListener("change", function () { onChange(input.value); });
+    input.addEventListener("input", function () { valores[c.id] = input.value; alCambiar(input.value); });
+    input.addEventListener("change", function () { valores[c.id] = input.value; alCambiar(input.value); });
     wrap.append(input);
     return wrap;
   }
@@ -153,9 +171,9 @@
   function renderCuerpo(s, sd, host, permitirTexto) {
     if (s.campos_extra && s.campos_extra.length) {
       var ex = el("div", { class: "campos-extra" });
+      sd.campos_extra = sd.campos_extra || {};
       s.campos_extra.forEach(function (c) {
-        sd.campos_extra = sd.campos_extra || {};
-        ex.append(campoEl(c, sd.campos_extra[c.id], function (v) { sd.campos_extra[c.id] = v; programarAutosave(); }));
+        ex.append(campoEl(c, sd.campos_extra, function (v) { programarAutosave(); }));
       });
       host.append(ex);
     }
@@ -309,7 +327,9 @@
       var sd = seccionDoc(s);
       if (s.tipo === "campos") {
         (s.campos || []).forEach(function (c) {
-          if (c.requerido && !(sd.campos[c.id] && String(sd.campos[c.id]).trim())) faltan.push(s.titulo + " — " + c.etiqueta);
+          if (!c.requerido) return;
+          var key = c.tipo === "rango_fecha" ? c.id + "_desde" : c.id;
+          if (!(sd.campos[key] && String(sd.campos[key]).trim())) faltan.push(s.titulo + " — " + c.etiqueta);
         });
       } else if (s.tipo === "cuerpo" && s.obligatoria) {
         var hay = (sd.bloques || []).some(function (b) { return b.tipo === "imagen" || (b.texto && b.texto.trim()); });
