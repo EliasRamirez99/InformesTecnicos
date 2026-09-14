@@ -112,17 +112,34 @@ const PLANTILLAS = {
     tipo: "boletin_mantenimiento",
     nombre: "Boletín de Mantenimiento",
     prefijo: "BOL",          // id => BOL-2026-0001
-    version: 1,
+    version: 2,
     secciones: [
 
       { id: "encabezado", titulo: "Encabezado", tipo: "campos", obligatoria: true,
         campos: [
-          { id: "titulo",        etiqueta: "Título del boletín",  tipo: "texto", requerido: true },
-          { id: "fecha_emision", etiqueta: "Fecha de emisión",    tipo: "fecha", requerido: true },
-          { id: "emisor",        etiqueta: "Emisor / responsable", tipo: "texto", requerido: true, listado: "supervisores" },
-          { id: "clasificacion", etiqueta: "Clasificación",       tipo: "opcion", opciones: ["Preventivo","Correctivo","Predictivo","Alerta técnica"] },
-          { id: "prioridad",     etiqueta: "Prioridad",           tipo: "opcion", opciones: ["Baja","Media","Alta","Crítica"] },
+          { id: "titulo",        etiqueta: "Título del boletín",         tipo: "texto", requerido: true },
+          { id: "nro_or",        etiqueta: "N° de Orden de Reparación",  tipo: "texto" },
+          { id: "fecha_emision", etiqueta: "Fecha de emisión",           tipo: "fecha", requerido: true },
+          { id: "emisor",        etiqueta: "Emisor / supervisor",        tipo: "texto", requerido: true, listado: "supervisores" },
+          { id: "box",           etiqueta: "Box",                        tipo: "texto" },
+          { id: "clasificacion", etiqueta: "Tipo de mantenimiento / clasificación", tipo: "opcion", opciones: ["Preventivo","Correctivo","Predictivo","Alerta técnica"] },
+          { id: "prioridad",     etiqueta: "Prioridad",                  tipo: "opcion", opciones: ["Baja","Media","Alta","Crítica"] },
           { id: "alcance_equipos", etiqueta: "Equipos / sistemas alcanzados", tipo: "texto" }
+        ]
+      },
+
+      { id: "datos_equipo", titulo: "Datos del equipo", tipo: "campos", autofill: "dominio",
+        campos: [
+          { id: "dominio",     etiqueta: "Equipo (Dominio / Interno)", tipo: "texto" },
+          { id: "tipo_equipo", etiqueta: "Tipo de equipo",             tipo: "texto" },
+          { id: "marca",       etiqueta: "Marca",                      tipo: "texto" },
+          { id: "modelo",      etiqueta: "Modelo",                     tipo: "texto" },
+          { id: "chasis",      etiqueta: "Chasis / Bin",               tipo: "texto" },
+          { id: "medidor",     etiqueta: "Km / Horas",                 tipo: "texto" },
+          { id: "obra",        etiqueta: "Obra",                       tipo: "texto", listado: "obras" },
+          { id: "base",        etiqueta: "Base / Destino",             tipo: "texto" },
+          { id: "sistema",     etiqueta: "Sistema afectado",           tipo: "texto", listado: "sistemas" },
+          { id: "componente",  etiqueta: "Componente",                 tipo: "texto", listado: "componentes" }
         ]
       },
 
