@@ -119,17 +119,34 @@
     if (c.requerido) lab.append(el("span", { class: "req" }, " *"));
     wrap.append(lab);
 
-    if (c.tipo === "rango_fecha") {          // Desde–Hasta (Hasta vacío = mismo día)
+    if (c.tipo === "rango_fecha") {          // Desde–Hasta; Hasta nunca antes que Desde
       var cont = el("div", { class: "rango-fecha" });
-      var celda = function (sub, etq) {
-        var col = el("div", { class: "rango-celda" }, el("span", { class: "rango-lbl" }, etq));
-        var inp = el("input", { type: "date" });
-        inp.value = valores[c.id + sub] || "";
-        inp.addEventListener("input", function () { valores[c.id + sub] = inp.value; alCambiar(valores[c.id + "_desde"]); });
-        col.append(inp);
-        return col;
-      };
-      cont.append(celda("_desde", "Desde"), celda("_hasta", "Hasta (si duró varios días)"));
+      var desdeInp = el("input", { type: "date" });
+      var hastaInp = el("input", { type: "date" });
+      desdeInp.value = valores[c.id + "_desde"] || "";
+      hastaInp.value = valores[c.id + "_hasta"] || "";
+      if (desdeInp.value) hastaInp.min = desdeInp.value;   // el picker no deja elegir anterior
+
+      desdeInp.addEventListener("input", function () {
+        valores[c.id + "_desde"] = desdeInp.value;
+        if (desdeInp.value) hastaInp.min = desdeInp.value; else hastaInp.removeAttribute("min");
+        // por defecto Hasta = Desde (mismo día); y nunca queda anterior
+        if (desdeInp.value && (!hastaInp.value || hastaInp.value < desdeInp.value)) {
+          hastaInp.value = desdeInp.value;
+          valores[c.id + "_hasta"] = desdeInp.value;
+        }
+        alCambiar(valores[c.id + "_desde"]);
+      });
+      hastaInp.addEventListener("input", function () {
+        if (desdeInp.value && hastaInp.value && hastaInp.value < desdeInp.value) {
+          hastaInp.value = desdeInp.value;                  // corrige: no puede ser anterior a Desde
+        }
+        valores[c.id + "_hasta"] = hastaInp.value;
+        alCambiar(valores[c.id + "_desde"]);
+      });
+
+      var celda = function (etq, inp) { return el("div", { class: "rango-celda" }, el("span", { class: "rango-lbl" }, etq), inp); };
+      cont.append(celda("Desde", desdeInp), celda("Hasta", hastaInp));
       wrap.append(cont);
       return wrap;
     }
