@@ -109,6 +109,7 @@ html.oscuro .badge.bol { background: #33280f; }
 .bloque.img .cap { width: 100%; display: flex; gap: 8px; align-items: center; }
 .bloque.img .cap input { flex: 1; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font: italic .88rem inherit; }
 .bloque.img .cap select { padding: 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); }
+.bloque.img .cap .peso { font-size: .74rem; color: var(--ink-faint); white-space: nowrap; }
 
 .add-bar { display: flex; gap: 6px; justify-content: center; padding: 3px 0; opacity: .5; transition: opacity .15s; }
 .bloques:hover .add-bar, .add-bar:hover { opacity: 1; }

@@ -262,6 +262,7 @@
     });
     sel.addEventListener("change", function () { b.ancho = sel.value; wrap.className = "bloque img " + sel.value; programarAutosave(); });
     cap.append(inp, sel);
+    if (info.bytes) cap.append(el("span", { class: "peso", title: "Peso de la imagen comprimida" }, Math.round(info.bytes / 1024) + " KB"));
     wrap.append(cap);
     return wrap;
   }

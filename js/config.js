@@ -16,7 +16,13 @@ const CONFIG = {
   RELAY_URL: "",
 
   // Cache-busting de css/js. Subir en cada cambio (?v=...).
-  VERSION: "20260914e"
+  VERSION: "20260914f",
+
+  // Compresión de imágenes (para no llenar Google Drive). Cada foto se reduce
+  // hasta quedar bajo IMG_MAX_KB, bajando calidad y —si hace falta— resolución.
+  IMG_MAX_LADO: 1400,   // lado más largo, en px
+  IMG_CALIDAD: 0.78,    // calidad JPEG inicial (0–1)
+  IMG_MAX_KB: 350       // peso objetivo máximo por imagen (KB)
 };
 
 if (typeof module !== "undefined" && module.exports) { module.exports = { CONFIG }; }

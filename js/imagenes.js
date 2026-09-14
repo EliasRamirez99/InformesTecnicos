@@ -27,7 +27,12 @@ const Imagenes = (() => {
     });
   }
 
-  async function comprimir(file, maxLado = 1600, calidad = 0.82) {
+  async function comprimir(file) {
+    const cfg = (typeof CONFIG !== "undefined" && CONFIG) || {};
+    const maxLado = cfg.IMG_MAX_LADO || 1400;
+    const calidadIni = cfg.IMG_CALIDAD || 0.78;
+    const maxKB = cfg.IMG_MAX_KB || 350;
+
     let fuente, w, h;
     try {
       fuente = await createImageBitmap(file, { imageOrientation: "from-image" });
@@ -35,14 +40,33 @@ const Imagenes = (() => {
     } catch (_) {
       fuente = await cargarImg(file); w = fuente.naturalWidth; h = fuente.naturalHeight;
     }
-    const escala = Math.min(1, maxLado / Math.max(w, h));
-    const cw = Math.max(1, Math.round(w * escala)), ch = Math.max(1, Math.round(h * escala));
-    const cv = document.createElement("canvas"); cv.width = cw; cv.height = ch;
-    cv.getContext("2d").drawImage(fuente, 0, 0, cw, ch);
+
+    // Dibuja a un canvas escalado a `lado` y exporta JPEG a calidad `q`.
+    const encode = (lado, q) => {
+      const escala = Math.min(1, lado / Math.max(w, h));
+      const cw = Math.max(1, Math.round(w * escala)), ch = Math.max(1, Math.round(h * escala));
+      const cv = document.createElement("canvas"); cv.width = cw; cv.height = ch;
+      cv.getContext("2d").drawImage(fuente, 0, 0, cw, ch);
+      const durl = cv.toDataURL("image/jpeg", q);
+      const b64 = durl.split(",")[1] || "";
+      return { dataURL: durl, base64: b64, w: cw, h: ch, kb: b64.length * 0.75 / 1024 };
+    };
+
+    // Objetivo de peso: baja calidad; si aún no entra, baja resolución.
+    const lados = [maxLado, 1100, 900];
+    let out = encode(maxLado, calidadIni);
+    for (const lado of lados) {
+      let q = calidadIni;
+      out = encode(lado, q);
+      while (out.kb > maxKB && q > 0.45) {
+        q = Math.round((q - 0.08) * 100) / 100;
+        out = encode(lado, q);
+      }
+      if (out.kb <= maxKB) break;
+    }
+
     if (fuente.close) fuente.close();
-    const dataURL = cv.toDataURL("image/jpeg", calidad);
-    const base64 = dataURL.split(",")[1] || "";
-    return { base64, dataURL, mime: "image/jpeg", w: cw, h: ch, bytes: Math.round(base64.length * 0.75) };
+    return { base64: out.base64, dataURL: out.dataURL, mime: "image/jpeg", w: out.w, h: out.h, bytes: Math.round(out.base64.length * 0.75) };
   }
 
   function cargarImg(file) {
