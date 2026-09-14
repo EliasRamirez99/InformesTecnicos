@@ -32,31 +32,32 @@ const PLANTILLAS = {
     tipo: "informe_intervencion",
     nombre: "Informe Técnico de Intervención Exitosa",
     prefijo: "INF",          // id => INF-2026-0001
-    version: 1,
+    version: 2,
     secciones: [
 
       { id: "identificacion", titulo: "Identificación", tipo: "campos", obligatoria: true,
         campos: [
           { id: "titulo",            etiqueta: "Título del informe",        tipo: "texto",  requerido: true },
+          { id: "nro_or",            etiqueta: "N° de Orden de Reparación",  tipo: "texto" },
           { id: "fecha_intervencion",etiqueta: "Fecha de la intervención",  tipo: "fecha",  requerido: true },
-          { id: "autor",             etiqueta: "Supervisor / autor",        tipo: "texto",  requerido: true, listado: "supervisores" },
-          { id: "sector",            etiqueta: "Sector / taller",           tipo: "opcion", opciones: ["Taller","Campo","Pañol","Almacén"] },
-          { id: "obra",              etiqueta: "Obra",                      tipo: "texto",  listado: "obras" },
-          { id: "tipo_intervencion", etiqueta: "Tipo de intervención",      tipo: "opcion", opciones: ["Correctiva","Preventiva","Predictiva","Mejora"] },
+          { id: "autor",             etiqueta: "Supervisor de taller",       tipo: "texto",  requerido: true, listado: "supervisores" },
+          { id: "box",               etiqueta: "Box",                        tipo: "texto" },
+          { id: "tipo_intervencion", etiqueta: "Tipo de mantenimiento",      tipo: "opcion", opciones: ["Correctivo","Preventivo","Predictivo","Mejora"] },
           { id: "criticidad",        etiqueta: "Criticidad",                tipo: "opcion", opciones: ["Baja","Media","Alta","Crítica"] }
         ]
       },
 
       { id: "datos_equipo", titulo: "Datos del equipo", tipo: "campos", obligatoria: true, autofill: "dominio",
         campos: [
-          { id: "dominio",     etiqueta: "Dominio / Identificador", tipo: "texto", requerido: true },
-          { id: "tipo_equipo", etiqueta: "Tipo de equipo",          tipo: "texto" },
-          { id: "marca",       etiqueta: "Marca",                   tipo: "texto" },
-          { id: "modelo",      etiqueta: "Modelo",                  tipo: "texto" },
-          { id: "medidor",     etiqueta: "Horómetro / Odómetro",    tipo: "texto" },
-          { id: "sistema",     etiqueta: "Sistema afectado",        tipo: "texto", listado: "sistemas" },
-          { id: "componente",  etiqueta: "Componente",              tipo: "texto", listado: "componentes" },
-          { id: "ubicacion",   etiqueta: "Ubicación / obra asignada", tipo: "texto" }
+          { id: "dominio",     etiqueta: "Equipo (Dominio / Interno)", tipo: "texto", requerido: true },
+          { id: "tipo_equipo", etiqueta: "Tipo de equipo",             tipo: "texto" },
+          { id: "marca",       etiqueta: "Marca",                      tipo: "texto" },
+          { id: "modelo",      etiqueta: "Modelo",                     tipo: "texto" },
+          { id: "medidor",     etiqueta: "Km / Horas",                 tipo: "texto" },
+          { id: "obra",        etiqueta: "Obra",                       tipo: "texto", listado: "obras" },
+          { id: "base",        etiqueta: "Base / Destino",             tipo: "texto" },
+          { id: "sistema",     etiqueta: "Sistema afectado",           tipo: "texto", listado: "sistemas" },
+          { id: "componente",  etiqueta: "Componente",                 tipo: "texto", listado: "componentes" }
         ]
       },
 

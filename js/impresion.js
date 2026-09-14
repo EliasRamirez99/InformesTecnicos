@@ -26,7 +26,7 @@ const Vista = (() => {
     var meta = doc.meta || {};
 
     var cab = el("div", { class: "doc-cabecera" },
-      el("div", { class: "doc-marca" }, el("span", { class: "logo" }, "OPS"), el("span", {}, pl.nombre)),
+      el("div", { class: "doc-marca" }, el("img", { class: "doc-logo", src: "img/logo-ops.svg", alt: "OPS" }), el("span", {}, pl.nombre)),
       el("h1", {}, meta.titulo || pl.nombre),
       el("div", { class: "doc-id" }, doc.id + " · " + (doc.estado || "borrador") + fechaCab(meta) + (meta.autor || meta.emisor ? " · " + (meta.autor || meta.emisor) : ""))
     );

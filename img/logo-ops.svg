@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" role="img" aria-label="OPS — Oilfield Production Services">
+  <rect x="3.5" y="3.5" width="293" height="93" rx="18" fill="#ffffff" stroke="#0080C0" stroke-width="6"/>
+  <text x="150" y="50" text-anchor="middle" font-family="Arial, 'Segoe UI', Helvetica, sans-serif" font-weight="900" font-size="45" letter-spacing="3" fill="#0080C0">OPS</text>
+  <text x="150" y="82" text-anchor="middle" font-family="Consolas, 'DejaVu Sans Mono', 'Courier New', monospace" font-size="16.5" letter-spacing="0.3" fill="#111111">Oilfield Production Services</text>
+</svg>
