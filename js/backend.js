@@ -38,6 +38,7 @@ const Backend = (() => {
     }
     const r = await postReintento({ accion: "guardar_doc", clave: clave(), doc });
     if (!r) return { ok: false, error: "La red cortó. Tus datos siguen cargados, probá Guardar de nuevo." };
+    if (r.ok && r.id) { doc.id = r.id; try { cacheSet("it_doc_" + r.id, doc); } catch (_) {} }  // caché fresca p/ver e imprimir
     return r;
   }
 

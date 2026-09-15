@@ -6,8 +6,8 @@
   <title>Imprimir · OPS</title>
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://lh3.googleusercontent.com">
-  <link rel="stylesheet" href="css/estilos.css?v=20260915b">
-  <link rel="stylesheet" href="css/imprimir.css?v=20260915b">
+  <link rel="stylesheet" href="css/estilos.css?v=20260915c">
+  <link rel="stylesheet" href="css/imprimir.css?v=20260915c">
 </head>
 <body class="imprimiendo">
   <div id="barra-imp">
@@ -18,12 +18,12 @@
   <div id="salida"></div>
 
   <script>window.PagedConfig = { auto: false };</script>
-  <script src="js/config.js?v=20260915b"></script>
-  <script src="js/common.js?v=20260915b"></script>
-  <script src="js/plantillas.js?v=20260915b"></script>
-  <script src="js/backend.js?v=20260915b"></script>
-  <script src="js/impresion.js?v=20260915b"></script>
-  <script src="js/paged.polyfill.js?v=20260915b"></script>
+  <script src="js/config.js?v=20260915c"></script>
+  <script src="js/common.js?v=20260915c"></script>
+  <script src="js/plantillas.js?v=20260915c"></script>
+  <script src="js/backend.js?v=20260915c"></script>
+  <script src="js/impresion.js?v=20260915c"></script>
+  <script src="js/paged.polyfill.js?v=20260915c"></script>
   <script>
     function esperarImagenes(cont, ms) {
       var pend = Array.prototype.slice.call(cont.querySelectorAll("img")).filter(function (i) { return !i.complete; });
@@ -40,23 +40,29 @@
       var estado = document.getElementById("estado-imp");
       var id = new URLSearchParams(location.search).get("id");
       if (!id) { estado.textContent = "Falta el id del documento."; return; }
-      estado.textContent = "Preparando documento…";
-      var r = await Backend.obtenerDoc(id);
-      if (!r || !r.ok) { estado.textContent = "No se encontró el documento."; return; }
-      var doc = r.doc;
+      // 1) Documento: primero de caché (instantáneo, ya lo trajo el inicio/la vista);
+      //    sólo si no está en caché lo pedimos al backend.
+      var doc = cacheGet("it_doc_" + id);
+      if (!doc) {
+        estado.textContent = "Cargando documento…";
+        var r = await Backend.obtenerDoc(id);
+        if (!r || !r.ok) { estado.textContent = "No se encontró el documento."; return; }
+        doc = r.doc;
+      }
+      estado.textContent = "Preparando para imprimir…";
       document.getElementById("btn-volver").href = "ver.html?id=" + encodeURIComponent(doc.id);
       document.title = ((doc.meta && doc.meta.titulo) || doc.id) + " · OPS";
 
       var fuente = document.createElement("div");
       Vista.render(doc, fuente);
-      await esperarImagenes(fuente, 6000);
+      await esperarImagenes(fuente, 2500);
 
       var salida = document.getElementById("salida");
       var conPaged = false;
       try {
         var previewer = new Paged.Previewer();
         await Promise.race([
-          previewer.preview(fuente, ["css/estilos.css?v=20260915b", "css/imprimir.css?v=20260915b"], salida),
+          previewer.preview(fuente, ["css/estilos.css?v=20260915c", "css/imprimir.css?v=20260915c"], salida),
           new Promise(function (_, rej) { setTimeout(function () { rej(new Error("timeout")); }, 12000); })
         ]);
         conPaged = salida.querySelectorAll(".pagedjs_page").length > 0;
