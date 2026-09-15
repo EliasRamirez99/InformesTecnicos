@@ -50,8 +50,14 @@ header.top { background: var(--surface); border-bottom: 1px solid var(--line); p
 
 /* ---- lista de documentos ---- */
 .docs { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--sombra); }
-.doc-row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--line); }
+.doc-row { display: flex; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
 .doc-row:first-child { border-top: 0; }
+.doc-main { flex: 1 1 auto; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; min-width: 0; }
+.doc-main:hover .titulo { color: var(--azul); }
+.doc-tit { min-width: 0; }
+.doc-side { display: flex; align-items: center; gap: 12px; flex: none; }
+.doc-pdf { text-decoration: none; font-size: .8rem; font-weight: 600; color: var(--azul); border: 1px solid var(--line-strong); border-radius: 7px; padding: 5px 9px; white-space: nowrap; }
+.doc-pdf:hover { background: var(--azul-suave); border-color: var(--azul); }
 .badge { font-size: .7rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--azul-suave); color: var(--azul); white-space: nowrap; }
 .badge.bol { background: #f6ecd9; color: var(--warn); }
 html.oscuro .badge.bol { background: #33280f; }
@@ -153,6 +159,11 @@ html.oscuro .faltantes { background: #3a1f1e; }
 .doc-dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; }
 .doc-dl dt { color: var(--ink-soft); font-size: .88rem; font-weight: 600; }
 .doc-dl dd { margin: 0; font-size: .92rem; }
+/* datos en grilla multi-columna (más presentable, tipo informe) */
+.doc-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 9px 22px; margin: 2px 0; }
+.doc-campo { display: flex; flex-direction: column; gap: 1px; border-bottom: 1px solid var(--line); padding-bottom: 4px; min-width: 0; }
+.doc-campo .k { font-size: .66rem; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-faint); font-weight: 600; }
+.doc-campo .v { font-size: .95rem; color: var(--ink); word-break: break-word; }
 .doc-cuerpo p { margin: 0 0 10px; }
 .doc-cuerpo figure { margin: 14px 0; text-align: center; }
 .doc-cuerpo figure.media img { max-width: 60%; } .doc-cuerpo figure.chica img { max-width: 34%; } .doc-cuerpo figure.full img { width: 100%; }
@@ -161,6 +172,8 @@ html.oscuro .faltantes { background: #3a1f1e; }
 .doc-tabla { width: 100%; border-collapse: collapse; font-size: .9rem; }
 .doc-tabla th, .doc-tabla td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; }
 .doc-tabla th { background: var(--surface-2); color: var(--ink-soft); }
+.doc-tabla tfoot .total td { font-weight: 700; background: var(--surface-2); border-top: 2px solid var(--line-strong); }
+.doc-tabla tfoot .total td:last-child { text-align: right; }
 
 @media print {
   :root { --bg: #fff; --surface: #fff; --ink: #111; --ink-soft: #333; --ink-faint: #666; --line: #ccc; --sombra: none; }

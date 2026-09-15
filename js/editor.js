@@ -300,8 +300,16 @@
       var tr = el("tr");
       s.columnas.forEach(function (col, ci) {
         var td = el("td");
-        var inp = el("input", { type: col.tipo === "numero" ? "number" : "text", value: fila[ci] || "" });
-        inp.addEventListener("input", function () { fila[ci] = inp.value; programarAutosave(); });
+        var inp;
+        if (col.opciones) {
+          inp = el("select", {});
+          inp.append(el("option", { value: "" }, "—"));
+          col.opciones.forEach(function (o) { var op = el("option", { value: o }, o); if (fila[ci] === o) op.selected = true; inp.append(op); });
+          inp.addEventListener("change", function () { fila[ci] = inp.value; programarAutosave(); });
+        } else {
+          inp = el("input", { type: col.tipo === "numero" ? "number" : "text", value: fila[ci] || "" });
+          inp.addEventListener("input", function () { fila[ci] = inp.value; programarAutosave(); });
+        }
         td.append(inp); tr.append(td);
       });
       var tx = el("td", { class: "x" });

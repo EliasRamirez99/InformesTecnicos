@@ -46,6 +46,25 @@ const Vista = (() => {
     });
   }
 
+  function valorCampo(c, campos) {
+    if (c.tipo === "rango_fecha") {
+      var d = formatearFecha(campos[c.id + "_desde"]);
+      var h = campos[c.id + "_hasta"] ? formatearFecha(campos[c.id + "_hasta"]) : "";
+      return (h && h !== d) ? (d + " a " + h) : d;
+    }
+    if (c.tipo === "fecha") return formatearFecha(campos[c.id]);
+    return campos[c.id];
+  }
+  /* Grilla de datos multi-columna (más presentable que uno abajo del otro). */
+  function gridCampos(pares, campos) {
+    var grid = el("div", { class: "doc-campos" });
+    pares.forEach(function (c) {
+      grid.append(el("div", { class: "doc-campo" },
+        el("span", { class: "k" }, c.etiqueta),
+        el("span", { class: "v" }, valorCampo(c, campos) || "—")));
+    });
+    return grid;
+  }
   function pintarCampos(s, sd) {
     var campos = (sd.campos) || {};
     var pares = (s.campos || []).filter(function (c) {
@@ -53,21 +72,11 @@ const Vista = (() => {
       return campos[c.id] != null && campos[c.id] !== "";
     });
     if (!pares.length) return null;
-    var dl = el("dl", { class: "doc-dl" });
-    pares.forEach(function (c) {
-      var valor;
-      if (c.tipo === "rango_fecha") {
-        var d = formatearFecha(campos[c.id + "_desde"]);
-        var h = campos[c.id + "_hasta"] ? formatearFecha(campos[c.id + "_hasta"]) : "";
-        valor = (h && h !== d) ? (d + " a " + h) : d;
-      } else if (c.tipo === "fecha") {
-        valor = formatearFecha(campos[c.id]);
-      } else {
-        valor = campos[c.id];
-      }
-      dl.append(el("dt", {}, c.etiqueta), el("dd", {}, valor));
-    });
-    return dl;
+    return gridCampos(pares, campos);
+  }
+
+  function _num(n) {
+    try { return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); } catch (_) { return String(n); }
   }
 
   function pintarTabla(s, sd) {
@@ -84,6 +93,27 @@ const Vista = (() => {
       tbody.append(tr);
     });
     tabla.append(tbody);
+
+    // Totales por moneda (tablas con columnas 'moneda' + 'monto', ej. Costos)
+    var iM = s.columnas.findIndex(function (c) { return c.id === "moneda"; });
+    var iV = s.columnas.findIndex(function (c) { return c.id === "monto"; });
+    if (iM >= 0 && iV >= 0) {
+      var tot = {};
+      filas.forEach(function (f) {
+        var m = (String(f[iM] || "").trim()) || "—";
+        var v = parseFloat(String(f[iV] || "").replace(",", ".")) || 0;
+        tot[m] = (tot[m] || 0) + v;
+      });
+      var tfoot = el("tfoot");
+      Object.keys(tot).forEach(function (m) {
+        var tr = el("tr", { class: "total" });
+        tr.append(el("td", { colspan: String(iV || 1) }, "Total " + m));
+        tr.append(el("td", {}, _num(tot[m])));
+        for (var k = iV + 1; k < s.columnas.length; k++) tr.append(el("td", {}, ""));
+        tfoot.append(tr);
+      });
+      tabla.append(tfoot);
+    }
     return tabla;
   }
 
@@ -93,11 +123,7 @@ const Vista = (() => {
 
     if (s.campos_extra && sd.campos_extra) {
       var ex = (s.campos_extra || []).filter(function (c) { return sd.campos_extra[c.id]; });
-      if (ex.length) {
-        var dl = el("dl", { class: "doc-dl" });
-        ex.forEach(function (c) { dl.append(el("dt", {}, c.etiqueta), el("dd", {}, sd.campos_extra[c.id])); });
-        frag.append(dl); algo = true;
-      }
+      if (ex.length) { frag.append(gridCampos(ex, sd.campos_extra)); algo = true; }
     }
     (sd.bloques || []).forEach(function (b) {
       if (b.tipo === "imagen") {

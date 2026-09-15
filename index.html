@@ -7,12 +7,12 @@
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://script.googleusercontent.com">
   <link rel="preconnect" href="https://lh3.googleusercontent.com">
-  <link rel="stylesheet" href="css/estilos.css?v=20260914f">
+  <link rel="stylesheet" href="css/estilos.css?v=20260915">
 </head>
 <body>
   <header class="top">
     <div class="wrap brand">
-      <img class="logo-ops" src="img/logo-ops.svg?v=20260914f" alt="OPS — Oilfield Production Services">
+      <img class="logo-ops" src="img/logo-ops.svg?v=20260915" alt="OPS — Oilfield Production Services">
       <h1>Informes Técnicos y Boletines</h1>
       <span class="sep"></span>
     </div>
@@ -43,10 +43,10 @@
     </div>
   </main>
 
-  <script src="js/config.js?v=20260914f"></script>
-  <script src="js/common.js?v=20260914f"></script>
-  <script src="js/plantillas.js?v=20260914f"></script>
-  <script src="js/backend.js?v=20260914f"></script>
+  <script src="js/config.js?v=20260915"></script>
+  <script src="js/common.js?v=20260915"></script>
+  <script src="js/plantillas.js?v=20260915"></script>
+  <script src="js/backend.js?v=20260915"></script>
   <script>
     if (!Backend.hayBackend()) { const a = document.getElementById("aviso-demo"); if (a) a.hidden = false; }
 
@@ -61,18 +61,21 @@
           const pl = plantillaDe(d.tipo) || {};
           const esBol = d.tipo === "boletin_mantenimiento";
           const titulo = (d.meta && d.meta.titulo) || pl.nombre || d.tipo;
-          const row = el("a", { class: "doc-row", href: "ver.html?id=" + encodeURIComponent(d.id) });
-          row.append(
+          const row = el("div", { class: "doc-row" });
+          const izq = el("a", { class: "doc-main", href: "ver.html?id=" + encodeURIComponent(d.id) });
+          izq.append(
             el("span", { class: "badge" + (esBol ? " bol" : "") }, esBol ? "BOLETÍN" : "INFORME"),
-            el("div", {},
+            el("div", { class: "doc-tit" },
               el("div", { class: "titulo" }, titulo),
               el("div", { class: "id" }, d.id + (d.meta && d.meta.dominio ? " · " + d.meta.dominio : ""))
-            ),
-            el("div", {},
-              el("div", { class: "fecha" }, formatearFecha(d.creado)),
-              el("span", { class: "estado" + (d.estado === "finalizado" ? " final" : "") }, d.estado || "borrador")
             )
           );
+          const der = el("div", { class: "doc-side" },
+            el("div", { class: "fecha" }, formatearFecha(d.creado)),
+            el("span", { class: "estado" + (d.estado === "finalizado" ? " final" : "") }, d.estado || "borrador"),
+            el("a", { class: "doc-pdf", href: "ver.html?id=" + encodeURIComponent(d.id) + "&imprimir=1", title: "Imprimir / PDF" }, "🖨 PDF")
+          );
+          row.append(izq, der);
           cont.append(row);
         }
       }

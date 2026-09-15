@@ -13,7 +13,7 @@
    ========================================================================== */
 
 var HOJA_DOCS = "documentos";
-var CABECERA  = ["id","tipo","estado","creado","actualizado","autor","meta_json","doc_json"];
+var CABECERA  = ["id","tipo","estado","creado","actualizado","autor","meta_json","doc_json","cid"];
 var CLAVES = { "Taller":"123", "Campo":"123", "Pañol":"123", "Almacén":"123", "Admin":"123" };
 
 // El script abre la Sheet por ID y se crea/usa la carpeta de imágenes solo.
@@ -52,7 +52,8 @@ function _manejar(p, postBody) {
 function _hoja() {
   var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(HOJA_DOCS);
-  if (!sh) { sh = ss.insertSheet(HOJA_DOCS); sh.appendRow(CABECERA); }
+  if (!sh) { sh = ss.insertSheet(HOJA_DOCS); sh.appendRow(CABECERA); return sh; }
+  if (sh.getLastColumn() < CABECERA.length) sh.getRange(1, 1, 1, CABECERA.length).setValues([CABECERA]);
   return sh;
 }
 function _filaPorId(sh, id) {
@@ -60,6 +61,14 @@ function _filaPorId(sh, id) {
   if (last < 2) return -1;                       // hoja vacía (sólo encabezado)
   var ids = sh.getRange(2, 1, last-1, 1).getValues();
   for (var i=0; i<ids.length; i++) { if (String(ids[i][0]) === String(id)) return i+2; }
+  return -1;
+}
+function _filaPorCid(sh, cid) {                   // dedup de reintentos: 'cid' = última columna
+  if (!cid) return -1;
+  var last = sh.getLastRow();
+  if (last < 2) return -1;
+  var vals = sh.getRange(2, CABECERA.length, last-1, 1).getValues();
+  for (var i=0; i<vals.length; i++) { if (String(vals[i][0]) === String(cid)) return i+2; }
   return -1;
 }
 function _correlativo(pref) {
@@ -76,12 +85,24 @@ function _guardarDoc(b) {
   if (!b || !b.doc) return { ok:false, error:"falta doc" };
   if (!_claveOk(b.clave)) return { ok:false, error:"clave inválida" };
   var doc = b.doc, sh = _hoja();
-  var pref = _prefijo(doc.tipo);
-  if (!doc.id || String(doc.id).indexOf("tmp-") === 0) { doc.id = _correlativo(pref); doc.creado = doc.creado || new Date().toISOString(); }
+  var cid = doc._cid || "";
+  var esTmp = (!doc.id || String(doc.id).indexOf("tmp-") === 0);
+
+  // Localizar fila existente: por cid (idempotencia ante reintentos) o por id (edición).
+  var r = -1;
+  if (cid) r = _filaPorCid(sh, cid);
+  if (r === -1 && !esTmp) r = _filaPorId(sh, doc.id);
+
+  if (r === -1 && esTmp) {                        // documento realmente nuevo
+    doc.id = _correlativo(_prefijo(doc.tipo));
+    doc.creado = doc.creado || new Date().toISOString();
+  } else if (r !== -1) {                          // ya existe: reusar su id -> ACTUALIZA, no duplica
+    doc.id = sh.getRange(r, 1).getValue() || doc.id;
+  }
   doc.actualizado = new Date().toISOString();
-  var fila = [ doc.id, doc.tipo, doc.estado||"borrador", doc.creado, doc.actualizado,
-               (doc.autor && doc.autor.nombre) || "", JSON.stringify(doc.meta||{}), JSON.stringify(doc) ];
-  var r = _filaPorId(sh, doc.id);
+  var fila = [ doc.id, doc.tipo, doc.estado||"borrador", doc.creado || new Date().toISOString(),
+               doc.actualizado, (doc.autor && doc.autor.nombre) || "",
+               JSON.stringify(doc.meta||{}), JSON.stringify(doc), cid ];
   if (r === -1) sh.appendRow(fila); else sh.getRange(r, 1, 1, CABECERA.length).setValues([fila]);
   return { ok:true, id:doc.id, actualizado:doc.actualizado };
 }

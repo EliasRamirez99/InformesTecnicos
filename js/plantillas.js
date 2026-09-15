@@ -112,7 +112,7 @@ const PLANTILLAS = {
     tipo: "boletin_mantenimiento",
     nombre: "Boletín de Mantenimiento",
     prefijo: "BOL",          // id => BOL-2026-0001
-    version: 2,
+    version: 3,
     secciones: [
 
       { id: "encabezado", titulo: "Encabezado", tipo: "campos", obligatoria: true,
@@ -160,6 +160,15 @@ const PLANTILLAS = {
           { id: "item",        etiqueta: "Ítem" },
           { id: "descripcion", etiqueta: "Descripción" },
           { id: "cantidad",    etiqueta: "Cant.", tipo: "numero" }
+        ]
+      },
+
+      { id: "costos", titulo: "Costos de la atención", tipo: "tabla",
+        columnas: [
+          { id: "tipo",    etiqueta: "Tipo de costo", opciones: ["Repuestos","Insumos","Mano de obra","Servicio tercerizado","Traslado","Otros"] },
+          { id: "detalle", etiqueta: "Detalle" },
+          { id: "moneda",  etiqueta: "Moneda", opciones: ["ARS","USD","EUR","Otra"] },
+          { id: "monto",   etiqueta: "Monto", tipo: "numero" }
         ]
       },
 
