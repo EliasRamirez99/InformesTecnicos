@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Imprimir · OPS</title>
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="preconnect" href="https://lh3.googleusercontent.com">
+  <link rel="stylesheet" href="css/estilos.css?v=20260915b">
+  <link rel="stylesheet" href="css/imprimir.css?v=20260915b">
+</head>
+<body class="imprimiendo">
+  <div id="barra-imp">
+    <button id="btn-reimp" class="btn" type="button">🖨 Imprimir / Guardar PDF</button>
+    <a class="btn ghost" id="btn-volver" href="index.html">← Volver</a>
+    <span id="estado-imp"></span>
+  </div>
+  <div id="salida"></div>
+
+  <script>window.PagedConfig = { auto: false };</script>
+  <script src="js/config.js?v=20260915b"></script>
+  <script src="js/common.js?v=20260915b"></script>
+  <script src="js/plantillas.js?v=20260915b"></script>
+  <script src="js/backend.js?v=20260915b"></script>
+  <script src="js/impresion.js?v=20260915b"></script>
+  <script src="js/paged.polyfill.js?v=20260915b"></script>
+  <script>
+    function esperarImagenes(cont, ms) {
+      var pend = Array.prototype.slice.call(cont.querySelectorAll("img")).filter(function (i) { return !i.complete; });
+      return new Promise(function (res) {
+        if (!pend.length) return res();
+        var done = 0, fin = false;
+        var acabar = function () { if (!fin) { fin = true; res(); } };
+        var check = function () { if (++done >= pend.length) acabar(); };
+        pend.forEach(function (i) { i.addEventListener("load", check); i.addEventListener("error", check); });
+        setTimeout(acabar, ms || 5000);
+      });
+    }
+    (async function () {
+      var estado = document.getElementById("estado-imp");
+      var id = new URLSearchParams(location.search).get("id");
+      if (!id) { estado.textContent = "Falta el id del documento."; return; }
+      estado.textContent = "Preparando documento…";
+      var r = await Backend.obtenerDoc(id);
+      if (!r || !r.ok) { estado.textContent = "No se encontró el documento."; return; }
+      var doc = r.doc;
+      document.getElementById("btn-volver").href = "ver.html?id=" + encodeURIComponent(doc.id);
+      document.title = ((doc.meta && doc.meta.titulo) || doc.id) + " · OPS";
+
+      var fuente = document.createElement("div");
+      Vista.render(doc, fuente);
+      await esperarImagenes(fuente, 6000);
+
+      var salida = document.getElementById("salida");
+      var conPaged = false;
+      try {
+        var previewer = new Paged.Previewer();
+        await Promise.race([
+          previewer.preview(fuente, ["css/estilos.css?v=20260915b", "css/imprimir.css?v=20260915b"], salida),
+          new Promise(function (_, rej) { setTimeout(function () { rej(new Error("timeout")); }, 12000); })
+        ]);
+        conPaged = salida.querySelectorAll(".pagedjs_page").length > 0;
+      } catch (e) { conPaged = false; }
+      if (!conPaged) {                 // fallback: documento plano (imprime bien igual, sin numeración por hoja)
+        document.body.classList.remove("imprimiendo");
+        salida.innerHTML = "";
+        salida.appendChild(fuente);
+      }
+      estado.textContent = "";
+      var imprimir = function () { window.print(); };
+      document.getElementById("btn-reimp").addEventListener("click", imprimir);
+      setTimeout(imprimir, 500);   // abre el diálogo de impresión solo
+    })();
+  </script>
+</body>
+</html>
