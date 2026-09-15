@@ -191,7 +191,7 @@ function autorizar() {
    si querés borrar otros. */
 function limpiarPruebas() {
   var res = [];
-  var ids = ["INF-2026-0003", "INF-2026-0004"];
+  var ids = ["INF-2026-0001", "INF-2026-0002", "INF-2026-0003"];
   var sh = _hoja();
   ids.forEach(function (id) {
     var r = _filaPorId(sh, id);
