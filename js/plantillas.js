@@ -32,7 +32,7 @@ const PLANTILLAS = {
     tipo: "informe_intervencion",
     nombre: "Informe Técnico de Intervención Exitosa",
     prefijo: "INF",          // id => INF-2026-0001
-    version: 4,
+    version: 5,
     secciones: [
 
       { id: "identificacion", titulo: "Identificación", tipo: "campos", obligatoria: true,
@@ -65,12 +65,7 @@ const PLANTILLAS = {
       { id: "motivo",               titulo: "Motivo de la intervención / síntoma", tipo: "cuerpo", obligatoria: true },
       { id: "diagnostico_inicial",  titulo: "Diagnóstico inicial",                 tipo: "cuerpo", obligatoria: true },
 
-      { id: "causa_raiz", titulo: "Análisis de causa raíz", tipo: "cuerpo", obligatoria: true,
-        campos_extra: [
-          { id: "causa_clasificada", etiqueta: "Causa raíz (clasificada)", tipo: "opcion",
-            opciones: ["Desgaste","Falla de material","Error operativo","Falta de mantenimiento","Lubricación","Contaminación","Diseño / instalación","Otro"] }
-        ]
-      },
+      { id: "causa_raiz", titulo: "Análisis de causa raíz", tipo: "cuerpo", obligatoria: true },
 
       { id: "diagnostico_definitivo", titulo: "Diagnóstico definitivo",              tipo: "cuerpo", obligatoria: true },
       { id: "acciones",               titulo: "Acciones realizadas — paso a paso",   tipo: "cuerpo", obligatoria: true },
