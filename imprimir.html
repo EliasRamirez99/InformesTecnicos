@@ -6,8 +6,8 @@
   <title>Imprimir · OPS</title>
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://lh3.googleusercontent.com">
-  <link rel="stylesheet" href="css/estilos.css?v=20260915c">
-  <link rel="stylesheet" href="css/imprimir.css?v=20260915c">
+  <link rel="stylesheet" href="css/estilos.css?v=20260916">
+  <link rel="stylesheet" href="css/imprimir.css?v=20260916">
 </head>
 <body class="imprimiendo">
   <div id="barra-imp">
@@ -18,12 +18,12 @@
   <div id="salida"></div>
 
   <script>window.PagedConfig = { auto: false };</script>
-  <script src="js/config.js?v=20260915c"></script>
-  <script src="js/common.js?v=20260915c"></script>
-  <script src="js/plantillas.js?v=20260915c"></script>
-  <script src="js/backend.js?v=20260915c"></script>
-  <script src="js/impresion.js?v=20260915c"></script>
-  <script src="js/paged.polyfill.js?v=20260915c"></script>
+  <script src="js/config.js?v=20260916"></script>
+  <script src="js/common.js?v=20260916"></script>
+  <script src="js/plantillas.js?v=20260916"></script>
+  <script src="js/backend.js?v=20260916"></script>
+  <script src="js/impresion.js?v=20260916"></script>
+  <script src="js/paged.polyfill.js?v=20260916"></script>
   <script>
     function esperarImagenes(cont, ms) {
       var pend = Array.prototype.slice.call(cont.querySelectorAll("img")).filter(function (i) { return !i.complete; });
@@ -62,7 +62,7 @@
       try {
         var previewer = new Paged.Previewer();
         await Promise.race([
-          previewer.preview(fuente, ["css/estilos.css?v=20260915c", "css/imprimir.css?v=20260915c"], salida),
+          previewer.preview(fuente, ["css/estilos.css?v=20260916", "css/imprimir.css?v=20260916"], salida),
           new Promise(function (_, rej) { setTimeout(function () { rej(new Error("timeout")); }, 12000); })
         ]);
         conPaged = salida.querySelectorAll(".pagedjs_page").length > 0;

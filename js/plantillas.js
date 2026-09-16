@@ -32,7 +32,7 @@ const PLANTILLAS = {
     tipo: "informe_intervencion",
     nombre: "Informe Técnico de Intervención Exitosa",
     prefijo: "INF",          // id => INF-2026-0001
-    version: 3,
+    version: 4,
     secciones: [
 
       { id: "identificacion", titulo: "Identificación", tipo: "campos", obligatoria: true,
@@ -67,7 +67,6 @@ const PLANTILLAS = {
 
       { id: "causa_raiz", titulo: "Análisis de causa raíz", tipo: "cuerpo", obligatoria: true,
         campos_extra: [
-          { id: "metodo",            etiqueta: "Método de análisis", tipo: "opcion", opciones: ["5 Porqués","Ishikawa","Árbol de fallas","Otro"] },
           { id: "causa_clasificada", etiqueta: "Causa raíz (clasificada)", tipo: "opcion",
             opciones: ["Desgaste","Falla de material","Error operativo","Falta de mantenimiento","Lubricación","Contaminación","Diseño / instalación","Otro"] }
         ]
@@ -84,12 +83,7 @@ const PLANTILLAS = {
         ]
       },
 
-      { id: "validacion", titulo: "Validación final / pruebas", tipo: "cuerpo", obligatoria: true,
-        campos_extra: [
-          { id: "parametros", etiqueta: "Parámetros medidos", tipo: "texto" },
-          { id: "operativo",  etiqueta: "Equipo operativo",   tipo: "opcion", opciones: ["Sí","No","Con observaciones"] }
-        ]
-      },
+      { id: "validacion", titulo: "Validación final / pruebas", tipo: "cuerpo", obligatoria: true },
 
       { id: "recomendaciones", titulo: "Recomendaciones / lecciones aprendidas", tipo: "cuerpo" },
 
@@ -112,7 +106,7 @@ const PLANTILLAS = {
     tipo: "boletin_mantenimiento",
     nombre: "Boletín de Mantenimiento",
     prefijo: "BOL",          // id => BOL-2026-0001
-    version: 3,
+    version: 4,
     secciones: [
 
       { id: "encabezado", titulo: "Encabezado", tipo: "campos", obligatoria: true,
@@ -145,12 +139,7 @@ const PLANTILLAS = {
 
       { id: "descripcion", titulo: "Descripción del acontecimiento", tipo: "cuerpo", obligatoria: true },
 
-      { id: "alcance", titulo: "Alcance / equipos afectados", tipo: "cuerpo",
-        campos_extra: [
-          { id: "familia",  etiqueta: "Familia de equipos", tipo: "texto", listado: "sistemas" },
-          { id: "obras",    etiqueta: "Obras alcanzadas",   tipo: "texto", listado: "obras" }
-        ]
-      },
+      { id: "alcance", titulo: "Alcance / equipos afectados", tipo: "cuerpo" },
 
       { id: "antecedentes", titulo: "Antecedentes / contexto",              tipo: "cuerpo" },
       { id: "desarrollo",   titulo: "Desarrollo / procedimiento paso a paso", tipo: "cuerpo", obligatoria: true },
