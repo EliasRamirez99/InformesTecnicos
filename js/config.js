@@ -16,7 +16,7 @@ const CONFIG = {
   RELAY_URL: "",
 
   // Cache-busting de css/js. Subir en cada cambio (?v=...).
-  VERSION: "20260916e",
+  VERSION: "20260923a",
 
   // Compresión de imágenes (para no llenar Google Drive). Cada foto se reduce
   // hasta quedar bajo IMG_MAX_KB, bajando calidad y —si hace falta— resolución.

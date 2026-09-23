@@ -165,6 +165,7 @@
     } else {
       var t = c.tipo === "fecha" ? "date" : c.tipo === "numero" ? "number" : "text";
       input = el("input", { type: t }); input.value = valores[c.id] || "";
+      if (t === "text") { input.setAttribute("spellcheck", "true"); input.setAttribute("lang", "es"); }
       if (c.listado) input.setAttribute("list", datalist(c.listado));
     }
     input.addEventListener("input", function () { valores[c.id] = input.value; alCambiar(input.value); });
@@ -254,7 +255,7 @@
     var info = doc.imagenes[b.img] || {};
     wrap.append(el("img", { src: urlImagen(info), alt: b.caption || "imagen" }));
     var cap = el("div", { class: "cap" });
-    var inp = el("input", { type: "text", placeholder: "Epígrafe de la foto…", value: b.caption || "" });
+    var inp = el("input", { type: "text", placeholder: "Epígrafe de la foto…", value: b.caption || "", spellcheck: "true", lang: "es" });
     inp.addEventListener("input", function () { b.caption = inp.value; programarAutosave(); });
     var sel = el("select", {});
     [["full", "Grande"], ["media", "Media"], ["chica", "Chica"]].forEach(function (o) {
@@ -308,6 +309,7 @@
           inp.addEventListener("change", function () { fila[ci] = inp.value; programarAutosave(); });
         } else {
           inp = el("input", { type: col.tipo === "numero" ? "number" : "text", value: fila[ci] || "" });
+          if (col.tipo !== "numero") { inp.setAttribute("spellcheck", "true"); inp.setAttribute("lang", "es"); }
           inp.addEventListener("input", function () { fila[ci] = inp.value; programarAutosave(); });
         }
         td.append(inp); tr.append(td);
