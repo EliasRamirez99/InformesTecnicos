@@ -151,10 +151,14 @@ html.oscuro .faltantes { background: #3a1f1e; }
 .doc-cabecera { border-bottom: 3px solid var(--azul); padding-bottom: 16px; margin-bottom: 24px; }
 .doc-marca { display: flex; align-items: center; gap: 12px; color: var(--ink-soft); font-weight: 600; font-size: .85rem; }
 .doc-logo { height: 50px; width: auto; display: block; flex: none; }
+.doc-tipo { flex: 1; text-transform: uppercase; letter-spacing: .06em; font-size: .78rem; }
+.doc-estado-badge { font-size: .64rem; font-weight: 700; letter-spacing: .05em; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-faint); }
+.doc-estado-badge.fin { border-color: var(--ok); color: var(--ok); }
 .doc-cabecera h1 { font-size: 1.7rem; margin: 12px 0 6px; line-height: 1.15; }
 .doc-id { font-family: ui-monospace, monospace; font-size: .82rem; color: var(--ink-faint); }
 .doc-sec { margin: 0 0 22px; }
-.doc-sec h2 { font-size: 1.05rem; color: var(--azul); border-bottom: 1px solid var(--line); padding-bottom: 5px; margin: 0 0 12px; }
+.doc-sec h2 { font-size: 1.05rem; color: var(--azul); border-bottom: 1px solid var(--line); padding-bottom: 5px; margin: 0 0 12px; display: flex; align-items: center; gap: 9px; }
+.doc-sec-num { flex: none; width: 22px; height: 22px; display: inline-grid; place-items: center; background: var(--azul); color: #fff; border-radius: 6px; font-size: .72rem; font-weight: 700; }
 .doc-sec .vacio-sec { color: var(--ink-faint); font-style: italic; font-size: .9rem; }
 .doc-dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; }
 .doc-dl dt { color: var(--ink-soft); font-size: .88rem; font-weight: 600; }

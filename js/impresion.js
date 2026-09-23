@@ -19,29 +19,50 @@ const Vista = (() => {
     return f ? " · " + formatearFecha(f) : "";
   }
 
+  function fechaDoc(meta) {
+    if (meta.fecha_intervencion_desde) {
+      var d = formatearFecha(meta.fecha_intervencion_desde);
+      var h = meta.fecha_intervencion_hasta ? formatearFecha(meta.fecha_intervencion_hasta) : "";
+      return (h && h !== d) ? (d + " a " + h) : d;
+    }
+    if (meta.fecha_emision) return formatearFecha(meta.fecha_emision);
+    return "";
+  }
+
   function render(doc, host) {
     var pl = plantillaDe(doc.tipo);
     host.innerHTML = "";
     if (!pl) { host.textContent = "Tipo de documento desconocido."; return; }
     var meta = doc.meta || {};
 
+    var bits = ["N° " + doc.id];
+    var f = fechaDoc(meta); if (f) bits.push(f);
+    if (meta.autor || meta.emisor) bits.push(meta.autor || meta.emisor);
+    if (meta.nro_or) bits.push("OR " + meta.nro_or);
+
     var cab = el("div", { class: "doc-cabecera" },
-      el("div", { class: "doc-marca" }, el("img", { class: "doc-logo", src: "img/logo-ops.svg", alt: "OPS" }), el("span", {}, pl.nombre)),
+      el("div", { class: "doc-marca" },
+        el("img", { class: "doc-logo", src: "img/logo-ops.svg", alt: "OPS" }),
+        el("span", { class: "doc-tipo" }, pl.nombre),
+        el("span", { class: "doc-estado-badge" + (doc.estado === "finalizado" ? " fin" : "") }, (doc.estado || "borrador").toUpperCase())
+      ),
       el("h1", {}, meta.titulo || pl.nombre),
-      el("div", { class: "doc-id" }, doc.id + " · " + (doc.estado || "borrador") + fechaCab(meta) + (meta.autor || meta.emisor ? " · " + (meta.autor || meta.emisor) : ""))
+      el("div", { class: "doc-id" }, bits.join("   ·   "))
     );
     host.append(cab);
 
-    pl.secciones.forEach(function (s, i) {
+    var n = 0;
+    pl.secciones.forEach(function (s) {
       var sd = (doc.secciones || []).find(function (x) { return x.id === s.id; }) || {};
-      var sec = el("section", { class: "doc-sec" });
-      sec.append(el("h2", {}, (i + 1) + ". " + s.titulo));
       var cuerpo;
       if (s.tipo === "campos") cuerpo = pintarCampos(s, sd);
       else if (s.tipo === "tabla") cuerpo = pintarTabla(s, sd);
       else cuerpo = pintarCuerpo(s, sd, doc);
-      if (cuerpo) sec.append(cuerpo);
-      else sec.append(el("div", { class: "vacio-sec" }, "(sin datos)"));
+      if (!cuerpo) return;                       // sección sin datos → no se muestra en el documento/PDF
+      n++;
+      var sec = el("section", { class: "doc-sec" });
+      sec.append(el("h2", {}, el("span", { class: "doc-sec-num" }, String(n)), s.titulo));
+      sec.append(cuerpo);
       host.append(sec);
     });
   }

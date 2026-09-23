@@ -161,7 +161,7 @@
         input.append(opt);
       });
     } else if (c.tipo === "textarea") {
-      input = el("textarea", { rows: "3" }); input.value = valores[c.id] || "";
+      input = el("textarea", { rows: "3", spellcheck: "true", lang: "es" }); input.value = valores[c.id] || "";
     } else {
       var t = c.tipo === "fecha" ? "date" : c.tipo === "numero" ? "number" : "text";
       input = el("input", { type: t }); input.value = valores[c.id] || "";
@@ -239,7 +239,7 @@
   function bloqueTexto(sd, host, b, i, permitirTexto) {
     var wrap = el("div", { class: "bloque texto" });
     wrap.append(ctrls(sd, host, i, permitirTexto));
-    var ta = el("textarea", { placeholder: "Escribí acá… (podés intercalar imágenes con los botones de arriba/abajo)" });
+    var ta = el("textarea", { placeholder: "Escribí acá… (podés intercalar imágenes con los botones de arriba/abajo)", spellcheck: "true", lang: "es" });
     ta.value = b.texto || "";
     ta.addEventListener("input", function () { b.texto = ta.value; autoGrow(ta); programarAutosave(); });
     wrap.append(ta);

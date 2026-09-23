@@ -6,8 +6,8 @@
   <title>Imprimir · OPS</title>
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://lh3.googleusercontent.com">
-  <link rel="stylesheet" href="css/estilos.css?v=20260916b">
-  <link rel="stylesheet" href="css/imprimir.css?v=20260916b">
+  <link rel="stylesheet" href="css/estilos.css?v=20260916c">
+  <link rel="stylesheet" href="css/imprimir.css?v=20260916c">
 </head>
 <body class="imprimiendo">
   <div id="barra-imp">
@@ -18,12 +18,12 @@
   <div id="salida"></div>
 
   <script>window.PagedConfig = { auto: false };</script>
-  <script src="js/config.js?v=20260916b"></script>
-  <script src="js/common.js?v=20260916b"></script>
-  <script src="js/plantillas.js?v=20260916b"></script>
-  <script src="js/backend.js?v=20260916b"></script>
-  <script src="js/impresion.js?v=20260916b"></script>
-  <script src="js/paged.polyfill.js?v=20260916b"></script>
+  <script src="js/config.js?v=20260916c"></script>
+  <script src="js/common.js?v=20260916c"></script>
+  <script src="js/plantillas.js?v=20260916c"></script>
+  <script src="js/backend.js?v=20260916c"></script>
+  <script src="js/impresion.js?v=20260916c"></script>
+  <script src="js/paged.polyfill.js?v=20260916c"></script>
   <script>
     function esperarImagenes(cont, ms) {
       var pend = Array.prototype.slice.call(cont.querySelectorAll("img")).filter(function (i) { return !i.complete; });
@@ -55,6 +55,20 @@
 
       var fuente = document.createElement("div");
       Vista.render(doc, fuente);
+
+      // Rótulo corrido (paged.js lo repite en cada hoja): logo + dominio · tipo/marca + título
+      var m = doc.meta || {};
+      var eq = [m.tipo_equipo, m.marca].filter(Boolean).join(" ");
+      var l1 = [m.dominio, eq].filter(Boolean).join("  ·  ") || "OPS";
+      var rh = document.createElement("div"); rh.className = "doc-run-header";
+      var rhImg = document.createElement("img"); rhImg.className = "rh-logo"; rhImg.src = "img/logo-ops.svg?v=20260916c"; rhImg.alt = "OPS";
+      var rhTxt = document.createElement("div"); rhTxt.className = "rh-txt";
+      var rhA = document.createElement("div"); rhA.className = "rh-1"; rhA.textContent = l1;
+      var rhB = document.createElement("div"); rhB.className = "rh-2"; rhB.textContent = m.titulo || "";
+      rhTxt.appendChild(rhA); rhTxt.appendChild(rhB);
+      rh.appendChild(rhImg); rh.appendChild(rhTxt);
+      fuente.insertBefore(rh, fuente.firstChild);
+
       await esperarImagenes(fuente, 2500);
 
       var salida = document.getElementById("salida");
@@ -62,7 +76,7 @@
       try {
         var previewer = new Paged.Previewer();
         await Promise.race([
-          previewer.preview(fuente, ["css/estilos.css?v=20260916b", "css/imprimir.css?v=20260916b"], salida),
+          previewer.preview(fuente, ["css/estilos.css?v=20260916c", "css/imprimir.css?v=20260916c"], salida),
           new Promise(function (_, rej) { setTimeout(function () { rej(new Error("timeout")); }, 12000); })
         ]);
         conPaged = salida.querySelectorAll(".pagedjs_page").length > 0;

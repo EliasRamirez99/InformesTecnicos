@@ -1,72 +1,78 @@
-/* imprimir.css — formato de empresa para el PDF (usado por paged.js).
-   Define hojas A4 con encabezado/pie en CADA página y numeración. */
+/* imprimir.css — formato de empresa profesional para el PDF (paged.js).
+   Hojas A4 con rótulo de empresa en cada hoja + numeración + tipografía cuidada. */
 
-/* Tipografía profesional del documento impreso */
+/* ---------- Documento ---------- */
 .documento {
   font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: #1a1a1a; font-size: 10.5pt; line-height: 1.42;
+  color: #23303a; font-size: 10.3pt; line-height: 1.45;
   border: 0; box-shadow: none; border-radius: 0; padding: 0; max-width: none; margin: 0; background: #fff;
 }
-.doc-cabecera { border-bottom: 2.5pt solid #0080C0; padding-bottom: 4mm; margin-bottom: 6mm; }
-.doc-logo { height: 15mm; }
-.doc-marca { color: #46586a; font-weight: 600; font-size: 8.5pt; gap: 3mm; }
-.doc-cabecera h1 { font-size: 17pt; margin: 3mm 0 1.5mm; line-height: 1.12; color: #14212c; }
-.doc-id { font-size: 8pt; color: #7d8b98; }
-.doc-sec { margin: 0 0 5mm; }
-.doc-sec h2 { font-size: 11.5pt; color: #0a6f9e; border-bottom: 0.5pt solid #cfd8e0; padding-bottom: 1.2mm; margin: 0 0 3mm; }
-.doc-campos { gap: 2.6mm 8mm; }
-.doc-campo { border-bottom: 0.4pt solid #e2e8ee; padding-bottom: 1mm; }
-.doc-campo .k { font-size: 7pt; letter-spacing: .04em; color: #8a97a3; }
-.doc-campo .v { font-size: 9.7pt; color: #1a1a1a; }
-.doc-cuerpo p { font-size: 10.3pt; margin: 0 0 2.4mm; }
-.doc-cuerpo figcaption { font-size: 8pt; }
-.doc-tabla { font-size: 9pt; }
-.doc-tabla th, .doc-tabla td { padding: 1.4mm 2.4mm; }
-.doc-tabla th { background: #eef3f7; }
 
-/* ------- Hojas A4 con encabezado/pie de empresa + numeración ------- */
+/* Portada / cabecera (sólo en la página 1) */
+.doc-cabecera { border: 0; border-bottom: 2.5pt solid #0080C0; padding: 0 0 4mm; margin: 0 0 6mm; }
+.doc-marca { display: flex; align-items: center; gap: 4mm; margin-bottom: 2.5mm; }
+.doc-logo { height: 16mm; width: auto; flex: none; }
+.doc-tipo { flex: 1; text-transform: uppercase; letter-spacing: .08em; font-size: 8pt; font-weight: 700; color: #6b7783; }
+.doc-estado-badge { font-size: 6.5pt; font-weight: 700; letter-spacing: .06em; padding: 1mm 2.5mm; border-radius: 999px; border: 0.6pt solid #c3ccd6; color: #8a97a3; }
+.doc-estado-badge.fin { border-color: #2f9e44; color: #2f9e44; background: #eaf6ec; }
+.doc-cabecera h1 { font-size: 18pt; margin: 1mm 0 2mm; line-height: 1.12; color: #14212c; font-weight: 700; }
+.doc-id { font-size: 8.2pt; color: #7d8b98; font-weight: 500; }
+
+/* Secciones */
+.doc-sec { margin: 0 0 5mm; break-inside: avoid; }
+.doc-sec h2 {
+  font-size: 11pt; color: #0a6f9e; margin: 0 0 3mm; padding: 0 0 1.5mm;
+  border-bottom: 0.6pt solid #d7e0e8; display: flex; align-items: center; gap: 2.5mm; font-weight: 700; break-after: avoid;
+}
+.doc-sec-num { flex: none; width: 5.4mm; height: 5.4mm; display: inline-grid; place-items: center; background: #0080C0; color: #fff; border-radius: 1.4mm; font-size: 7.5pt; font-weight: 700; }
+
+/* Datos en grilla */
+.doc-campos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6mm 7mm; margin: 1mm 0; }
+.doc-campo { border-bottom: 0.4pt solid #e6ecf1; padding-bottom: 1mm; min-width: 0; break-inside: avoid; }
+.doc-campo .k { font-size: 6.6pt; text-transform: uppercase; letter-spacing: .04em; color: #92a0ab; font-weight: 700; display: block; }
+.doc-campo .v { font-size: 9.6pt; color: #23303a; word-break: break-word; }
+
+/* Cuerpo (texto + imágenes) */
+.doc-cuerpo p { font-size: 10.2pt; margin: 0 0 2.4mm; text-align: justify; }
+.doc-cuerpo figure { margin: 3mm 0; text-align: center; break-inside: avoid; }
+.doc-cuerpo figure.media img { max-width: 62%; } .doc-cuerpo figure.chica img { max-width: 36%; } .doc-cuerpo figure.full img { width: 100%; }
+.doc-cuerpo figure img { border: 0.5pt solid #d7e0e8; border-radius: 1.5mm; max-height: 95mm; }
+.doc-cuerpo figcaption { font-size: 8pt; color: #6b7783; font-style: italic; margin-top: 1mm; }
+
+/* Tablas */
+.doc-tabla { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 1mm 0; }
+.doc-tabla th, .doc-tabla td { border: 0.5pt solid #d7e0e8; padding: 1.5mm 2.5mm; text-align: left; }
+.doc-tabla th { background: #eef3f7; color: #4a5b6a; font-weight: 700; font-size: 8pt; text-transform: uppercase; letter-spacing: .03em; }
+.doc-tabla tbody tr:nth-child(even) td { background: #f7fafc; }
+.doc-tabla tr { break-inside: avoid; }
+.doc-tabla tfoot .total td { font-weight: 700; background: #eef3f7; border-top: 1pt solid #b9c5d0; }
+.doc-tabla tfoot .total td:last-child { text-align: right; color: #0a6f9e; }
+
+/* ---------- Rótulo corrido (se repite en las hojas 2+) ---------- */
+.doc-run-header { position: running(cab); display: flex; align-items: center; gap: 3.5mm; width: 100%; border-bottom: 0.6pt solid #d7e0e8; padding-bottom: 1.2mm; }
+.doc-run-header .rh-logo { height: 8.5mm; width: auto; flex: none; }
+.doc-run-header .rh-txt { flex: 1; min-width: 0; line-height: 1.2; }
+.doc-run-header .rh-1 { font-weight: 700; font-size: 8pt; color: #0080C0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-run-header .rh-2 { font-size: 7.5pt; color: #56636e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Hojas A4: márgenes, rótulo y pie ---------- */
 @page {
   size: A4;
-  margin: 19mm 15mm 15mm 15mm;
-  @top-left {
-    content: "OPS · Oilfield Production Services";
-    font-family: "Segoe UI", Arial, sans-serif; font-weight: 600; font-size: 8pt; color: #0080C0;
-    vertical-align: bottom; padding-bottom: 2mm;
-  }
-  @top-right {
-    content: string(doctitulo);
-    font-family: "Segoe UI", Arial, sans-serif; font-size: 8pt; color: #9aa6b1;
-    vertical-align: bottom; padding-bottom: 2mm;
-  }
-  @bottom-left {
-    content: string(docid);
-    font-family: "Segoe UI", Arial, sans-serif; font-size: 7.5pt; color: #9aa6b1;
-    vertical-align: top; padding-top: 1.5mm;
-  }
-  @bottom-right {
-    content: "Página " counter(page) " de " counter(pages);
-    font-family: "Segoe UI", Arial, sans-serif; font-size: 7.5pt; color: #9aa6b1;
-    vertical-align: top; padding-top: 1.5mm;
-  }
+  margin: 27mm 15mm 15mm 15mm;
+  @top-center { content: element(cab); vertical-align: bottom; }
+  @bottom-left { content: "OPS · Oilfield Production Services"; font: 7.5pt "Segoe UI", Arial, sans-serif; color: #9aa6b1; vertical-align: top; padding-top: 1.5mm; }
+  @bottom-right { content: "Página " counter(page) " de " counter(pages); font: 7.5pt "Segoe UI", Arial, sans-serif; color: #9aa6b1; vertical-align: top; padding-top: 1.5mm; }
 }
-/* capturar id/título para el encabezado y pie corridos */
-.doc-id       { string-set: docid content(text); }
-.doc-cabecera h1 { string-set: doctitulo content(text); }
+@page:first {                 /* la portada ya tiene la cabecera completa: sin rótulo corrido arriba */
+  margin-top: 15mm;
+  @top-center { content: none; }
+}
 
-/* control de cortes de página */
-.doc-sec { break-inside: avoid; }
-.doc-cuerpo figure, .doc-tabla tr, .doc-campo { break-inside: avoid; }
-.doc-sec h2 { break-after: avoid; }
-.doc-cabecera { break-after: avoid; }
-
-/* barra superior (sólo pantalla) */
+/* ---------- Interfaz en pantalla ---------- */
 #barra-imp { position: fixed; top: 0; left: 0; right: 0; display: flex; gap: 10px; justify-content: center; align-items: center; padding: 9px; background: #fff; border-bottom: 1px solid #dbe2e9; z-index: 99; }
 #barra-imp #estado-imp { color: #7d8b98; font-size: .85rem; }
 #salida { margin-top: 54px; }
-
-/* interfaz en pantalla de paged.js (previsualización tipo PDF) */
 body.imprimiendo { background: #6b7681; }
-.pagedjs_pages { }
 .pagedjs_page { background: #fff; box-shadow: 0 1mm 4mm rgba(0,0,0,.25); margin: 6mm auto; }
 
 @media print {
