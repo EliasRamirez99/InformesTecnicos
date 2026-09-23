@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://script.googleusercontent.com">
   <link rel="preconnect" href="https://lh3.googleusercontent.com">
-  <link rel="prefetch" href="js/paged.polyfill.js?v=20260916d" as="script">
-  <link rel="stylesheet" href="css/estilos.css?v=20260916d">
+  <link rel="prefetch" href="js/paged.polyfill.js?v=20260916e" as="script">
+  <link rel="stylesheet" href="css/estilos.css?v=20260916e">
 </head>
 <body>
   <header class="top">
     <div class="wrap brand">
-      <img class="logo-ops" src="img/logo-ops.svg?v=20260916d" alt="OPS — Oilfield Production Services">
+      <img class="logo-ops" src="img/logo-ops.svg?v=20260916e" alt="OPS — Oilfield Production Services">
       <h1>Informes Técnicos y Boletines</h1>
       <span class="sep"></span>
     </div>
@@ -39,24 +39,37 @@
     </div>
 
     <div class="sec-title">Documentos cargados</div>
+    <div class="buscador">
+      <input id="q" type="search" placeholder="Buscar por equipo, dominio, título, N° de OR…" autocomplete="off">
+      <div class="filtros-tipo">
+        <button type="button" class="chip-tipo activo" data-tipo="">Todos</button>
+        <button type="button" class="chip-tipo" data-tipo="informe_intervencion">Informes</button>
+        <button type="button" class="chip-tipo" data-tipo="boletin_mantenimiento">Boletines</button>
+      </div>
+    </div>
     <div id="lista" class="docs">
       <div class="vacio">Cargando…</div>
     </div>
   </main>
 
-  <script src="js/config.js?v=20260916d"></script>
-  <script src="js/common.js?v=20260916d"></script>
-  <script src="js/plantillas.js?v=20260916d"></script>
-  <script src="js/backend.js?v=20260916d"></script>
+  <script src="js/config.js?v=20260916e"></script>
+  <script src="js/common.js?v=20260916e"></script>
+  <script src="js/plantillas.js?v=20260916e"></script>
+  <script src="js/backend.js?v=20260916e"></script>
   <script>
     if (!Backend.hayBackend()) { const a = document.getElementById("aviso-demo"); if (a) a.hidden = false; }
 
     (function () {
       const cont = document.getElementById("lista");
       const CACHE = "it_docs_cache";
+      var TODOS = [];
+      var filtroTipo = "";
 
       function pintar(docs) {
-        if (!docs || !docs.length) { cont.innerHTML = '<div class="vacio">Todavía no hay documentos. Creá el primero arriba.</div>'; return; }
+        if (!docs || !docs.length) {
+          cont.innerHTML = '<div class="vacio">' + (TODOS.length ? "No hay documentos que coincidan con la búsqueda." : "Todavía no hay documentos. Creá el primero arriba.") + '</div>';
+          return;
+        }
         cont.innerHTML = "";
         for (const d of docs) {
           const pl = plantillaDe(d.tipo) || {};
@@ -81,13 +94,37 @@
         }
       }
 
-      // 1) instantáneo desde caché (no esperamos la red para ver la lista)
+      function aplicar() {
+        var q = (document.getElementById("q").value || "").toLowerCase().trim();
+        var f = TODOS.filter(function (d) {
+          if (filtroTipo && d.tipo !== filtroTipo) return false;
+          if (!q) return true;
+          var m = d.meta || {};
+          var hay = [d.id, m.titulo, m.dominio, m.tipo_equipo, m.marca, m.modelo, m.obra, m.base, m.nro_or, m.autor, m.emisor]
+            .filter(Boolean).join(" ").toLowerCase();
+          return hay.indexOf(q) !== -1;
+        });
+        pintar(f);
+      }
+
+      function cargar(docs) { TODOS = docs || []; aplicar(); }
+
+      document.getElementById("q").addEventListener("input", aplicar);
+      Array.prototype.forEach.call(document.querySelectorAll(".chip-tipo"), function (b) {
+        b.addEventListener("click", function () {
+          filtroTipo = b.getAttribute("data-tipo") || "";
+          Array.prototype.forEach.call(document.querySelectorAll(".chip-tipo"), function (x) { x.classList.toggle("activo", x === b); });
+          aplicar();
+        });
+      });
+
+      // 1) instantáneo desde caché
       const cache = cacheGet(CACHE);
-      if (cache && cache.length) pintar(cache);
+      if (cache && cache.length) cargar(cache);
 
       // 2) refresco en 2º plano; si la red corta, conserva lo cacheado
       Backend.listarDocs().then(function (r) {
-        if (r && r.ok && Array.isArray(r.docs)) { cacheSet(CACHE, r.docs); pintar(r.docs); }
+        if (r && r.ok && Array.isArray(r.docs)) { cacheSet(CACHE, r.docs); cargar(r.docs); }
         else if (!(cache && cache.length)) {
           cont.innerHTML = '<div class="vacio">No se pudo cargar la lista (la red cortó). <a href="index.html">Reintentar</a></div>';
         }

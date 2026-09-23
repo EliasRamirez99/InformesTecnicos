@@ -71,6 +71,15 @@ html.oscuro .badge.bol { background: #33280f; }
 .vacio { padding: 28px; text-align: center; color: var(--ink-faint); }
 .sec-title { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-faint); font-weight: 700; margin: 28px 0 10px; }
 
+/* buscador de documentos */
+.buscador { display: flex; gap: 12px; align-items: center; margin: 0 0 12px; flex-wrap: wrap; }
+.buscador #q { flex: 1; min-width: 220px; padding: 10px 14px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; }
+.buscador #q:focus { outline: 2px solid var(--azul); outline-offset: 1px; border-color: var(--azul); }
+.filtros-tipo { display: flex; gap: 6px; }
+.chip-tipo { padding: 8px 14px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft); border-radius: 999px; cursor: pointer; font-size: .85rem; font-weight: 600; }
+.chip-tipo:hover { border-color: var(--azul); color: var(--azul); }
+.chip-tipo.activo { background: var(--azul); color: #fff; border-color: var(--azul); }
+
 /* ====================== EDITOR ====================== */
 .editor-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 20px 0 6px; }
 .editor-head h2 { margin: 0; font-size: 1.3rem; }
